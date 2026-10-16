@@ -110,3 +110,105 @@ export interface RecipeCalculation {
   qty: string
   lines: { ingredient: number; ingredient_name: string; unit_code: string; quantity: string }[]
 }
+
+export type ExpiryStatus = 'ok' | 'expiring' | 'expired'
+
+export interface Lot {
+  id: number
+  number: string
+  item: number
+  item_code: string
+  item_name: string
+  item_kind: ItemKind
+  unit_code: string
+  supplier: number | null
+  supplier_name: string | null
+  date: string
+  expiry_date: string
+  unit_cost: string
+  balance: string
+  expiry_status: ExpiryStatus
+  days_left: number
+}
+
+export interface StockRow {
+  id: number
+  code: string
+  name: string
+  kind: ItemKind
+  unit_code: string
+  min_stock: string
+  balance: string
+  available: string
+  expired: string
+  below_min: boolean
+  nearest_expiry: string | null
+}
+
+export interface StockMove {
+  id: number
+  lot: number
+  lot_number: string
+  item: number
+  item_name: string
+  unit_code: string
+  kind: string
+  kind_display: string
+  quantity: string
+  reference: string
+  created_by_name: string | null
+  created_at: string
+}
+
+export interface DocLine {
+  id?: number
+  item: number
+  item_name?: string
+  unit_code?: string
+  quantity: string
+  price: string
+  amount?: string
+}
+
+export interface PurchaseOrderLine extends DocLine { received?: string }
+
+export interface PurchaseOrder {
+  id: number
+  number: string
+  supplier: number
+  supplier_name: string
+  status: 'draft' | 'sent' | 'partial' | 'received' | 'cancelled'
+  status_display: string
+  expected_date: string | null
+  comment: string
+  lines: PurchaseOrderLine[]
+  total: string
+  created_by_name: string | null
+  created_at: string
+}
+
+export interface ReceiptLine extends DocLine {
+  expiry_date: string | null
+  order_line: number | null
+  lot: number | null
+  lot_number: string | null
+}
+
+export interface Receipt {
+  id: number
+  number: string
+  supplier: number
+  supplier_name: string
+  order: number | null
+  order_number: string | null
+  date: string
+  invoice_number: string
+  status: 'draft' | 'posted'
+  status_display: string
+  comment: string
+  lines: ReceiptLine[]
+  total: string
+  created_by_name: string | null
+  posted_by_name: string | null
+  posted_at: string | null
+}

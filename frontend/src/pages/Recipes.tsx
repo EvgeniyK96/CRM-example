@@ -7,7 +7,7 @@ import { api } from '../api/client'
 import { errorText, toOptions, useList } from '../api/hooks'
 import type { Department, Item, Recipe, RecipeStatus } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
-import { RECIPE_STATUS } from './recipeStatus'
+import { RECIPE_STATUS } from '../api/statuses'
 
 export default function Recipes() {
   const { can } = useAuth()

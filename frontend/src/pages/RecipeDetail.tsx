@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   App, Button, Card, Descriptions, Form, Input, InputNumber, Popconfirm, Select, Space, Table, Tag, Typography,
@@ -7,10 +7,11 @@ import dayjs from 'dayjs'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { errorText, toOptions, useList } from '../api/hooks'
+import { errorText, toOptions, useApiAction, useList } from '../api/hooks'
 import type { Item, Recipe, RecipeCalculation, RecipeLine } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
-import { RECIPE_STATUS } from './recipeStatus'
+import { RECIPE_STATUS } from '../api/statuses'
+import LinesFormList, { type LineColumn } from '../components/LinesFormList'
 
 const fmt = (d: string | null) => (d ? dayjs(d).format('DD.MM.YYYY HH:mm') : '—')
 
@@ -135,19 +136,44 @@ function RecipeView({ recipe }: { recipe: Recipe }) {
 }
 
 function RecipeEditor({ recipe, onSaved }: { recipe: Recipe; onSaved: () => void }) {
-  const { message } = App.useApp()
   const [form] = Form.useForm()
   const raw = useList<Item>('/catalog/items/', { kind: 'raw', is_active: true })
   const unitOf = (ingredient?: number) => raw.data?.find((i) => i.id === ingredient)?.unit_code
+  const save = useApiAction((v: object) => api.patch(`/recipes/${recipe.id}/`, v), { success: 'Черновик сохранён', onSuccess: onSaved })
 
-  const save = useMutation({
-    mutationFn: (v: object) => api.patch(`/recipes/${recipe.id}/`, v),
-    onSuccess: () => {
-      message.success('Черновик сохранён')
-      onSaved()
+  const columns: LineColumn[] = [
+    {
+      title: 'Сырьё',
+      width: 'minmax(220px, 3fr)',
+      render: (i) => (
+        <Form.Item name={[i, 'ingredient']} rules={[{ required: true, message: 'Выберите сырьё' }]}>
+          <Select showSearch={{ optionFilterProp: 'label' }} placeholder="Сырьё" options={toOptions(raw.data, (item) => item.name)} />
+        </Form.Item>
+      ),
     },
-    onError: (e) => message.error(errorText(e)),
-  })
+    {
+      title: 'Нетто',
+      width: 'minmax(150px, 1fr)',
+      render: (i) => (
+        <Form.Item noStyle shouldUpdate>
+          {({ getFieldValue }) => (
+            <Form.Item name={[i, 'quantity']} rules={[{ required: true, message: 'Укажите' }]}>
+              <InputNumber min="0.001" stringMode suffix={unitOf(getFieldValue(['lines', i, 'ingredient']))} style={{ width: '100%' }} />
+            </Form.Item>
+          )}
+        </Form.Item>
+      ),
+    },
+    {
+      title: 'Потери',
+      width: 'minmax(110px, 1fr)',
+      render: (i) => (
+        <Form.Item name={[i, 'loss_percent']}>
+          <InputNumber min="0" max="99.99" stringMode suffix="%" style={{ width: '100%' }} />
+        </Form.Item>
+      ),
+    },
+  ]
 
   return (
     <Card title="Состав (черновик)" size="small" extra={<Button type="primary" loading={save.isPending} onClick={() => form.submit()}>Сохранить</Button>}>
@@ -160,34 +186,7 @@ function RecipeEditor({ recipe, onSaved }: { recipe: Recipe; onSaved: () => void
         <Form.Item name="output_qty" label={`Выход партии, ${recipe.product_unit}`} rules={[{ required: true }]} style={{ maxWidth: 240 }}>
           <InputNumber min="0.001" stringMode style={{ width: '100%' }} />
         </Form.Item>
-        <Form.List name="lines">
-          {(fields, { add, remove }) => (
-            <>
-              {fields.map(({ key, name }) => (
-                <Space key={key} align="baseline" wrap>
-                  <Form.Item name={[name, 'ingredient']} rules={[{ required: true, message: 'Выберите сырьё' }]} style={{ width: 320 }}>
-                    <Select showSearch={{ optionFilterProp: 'label' }} placeholder="Сырьё" options={toOptions(raw.data, (i) => i.name)} />
-                  </Form.Item>
-                  <Form.Item noStyle shouldUpdate>
-                    {() => (
-                      <Form.Item name={[name, 'quantity']} rules={[{ required: true, message: 'Количество' }]}>
-                        <InputNumber
-                          min="0.001" stringMode placeholder="Нетто" style={{ width: 170 }}
-                          suffix={unitOf(form.getFieldValue(['lines', name, 'ingredient']))}
-                        />
-                      </Form.Item>
-                    )}
-                  </Form.Item>
-                  <Form.Item name={[name, 'loss_percent']}>
-                    <InputNumber min="0" max="99.99" stringMode suffix="%" style={{ width: 120 }} />
-                  </Form.Item>
-                  <Button icon={<DeleteOutlined />} onClick={() => remove(name)} />
-                </Space>
-              ))}
-              <Button type="dashed" icon={<PlusOutlined />} onClick={() => add({ loss_percent: '0' })} style={{ marginBottom: 16 }}>Добавить сырьё</Button>
-            </>
-          )}
-        </Form.List>
+        <LinesFormList columns={columns} newLine={{ loss_percent: '0' }} addLabel="Добавить сырьё" />
         <Form.Item name="note" label="Технологические указания"><Input.TextArea rows={3} /></Form.Item>
       </Form>
     </Card>

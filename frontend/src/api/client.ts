@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-export const api = axios.create({ baseURL: '/api' })
+// indexes: null — массивы как kind=a&kind=b (формат django-filter), а не kind[]=a
+export const api = axios.create({ baseURL: '/api', paramsSerializer: { indexes: null } })
 
 const ACCESS = 'access'
 const REFRESH = 'refresh'

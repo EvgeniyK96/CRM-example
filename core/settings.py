@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     "apps.hr",
     "apps.catalog",
     "apps.recipes",
+    "apps.warehouse",
+    "apps.purchasing",
     # LOCAL_APPS_MARKER — не удаляй эту строку, она используется create_app.py
 ]
 
@@ -108,6 +110,7 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
     "DEFAULT_PAGINATION_CLASS": "core.pagination.DefaultPagination",
+    "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
 }
 
 SIMPLE_JWT = {

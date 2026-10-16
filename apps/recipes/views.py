@@ -1,16 +1,16 @@
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from apps.accounts.permissions import ReadAnyWriteRoles
+from core.views import CreatedByMixin, DraftOnlyDestroyMixin
 
 from . import services
 from .models import Recipe
 from .serializers import CalculateSerializer, RecipeSerializer
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(CreatedByMixin, DraftOnlyDestroyMixin, viewsets.ModelViewSet):
     """Рецептуры. Создание и изменение — технолог; черновик → активна → в архиве."""
 
     queryset = Recipe.objects.select_related("product__unit", "product__department", "created_by").prefetch_related(
@@ -22,20 +22,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     search_fields = ["product__name", "product__code"]
     ordering_fields = ["version", "created_at"]
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
-    def perform_destroy(self, instance):
-        if not instance.is_editable:
-            raise ValidationError("Удалить можно только черновик.")
-        instance.delete()
-
     @action(detail=True, methods=["post"])
     def activate(self, request, pk=None):
-        try:
-            recipe = services.activate(self.get_object())
-        except services.RecipeError as e:
-            raise ValidationError(str(e))
+        recipe = services.activate(self.get_object())
         return Response(self.get_serializer(recipe).data)
 
     @action(detail=True, methods=["post"])

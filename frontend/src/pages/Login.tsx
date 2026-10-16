@@ -28,7 +28,7 @@ export default function Login() {
     <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#f5f5f5' }}>
       <Card style={{ width: 360 }}>
         <Typography.Title level={3} style={{ textAlign: 'center' }}>Кондитерская фабрика</Typography.Title>
-        {error && <Alert type="error" message={error} style={{ marginBottom: 16 }} />}
+        {error && <Alert type="error" title={error} style={{ marginBottom: 16 }} />}
         <Form layout="vertical" onFinish={onFinish}>
           <Form.Item name="username" label="Логин" rules={[{ required: true }]}><Input autoFocus /></Form.Item>
           <Form.Item name="password" label="Пароль" rules={[{ required: true }]}><Input.Password /></Form.Item>

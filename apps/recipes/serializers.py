@@ -4,6 +4,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from apps.catalog.models import ItemKind
+from core.serializers import LinesWriteMixin, positive
 
 from .models import Recipe, RecipeLine
 from .services import next_version
@@ -23,9 +24,7 @@ class RecipeLineSerializer(serializers.ModelSerializer):
         return value
 
     def validate_quantity(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("Количество должно быть больше нуля.")
-        return value
+        return positive(value)
 
     def validate_loss_percent(self, value):
         if not 0 <= value < 100:
@@ -33,7 +32,11 @@ class RecipeLineSerializer(serializers.ModelSerializer):
         return value
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeSerializer(LinesWriteMixin, serializers.ModelSerializer):
+    lines_parent_field = "recipe"
+    lines_unique_field = "ingredient"
+    not_editable_message = "Изменять можно только черновик. Создайте новую версию."
+
     lines = RecipeLineSerializer(many=True, required=False)
     product_name = serializers.CharField(source="product.name", read_only=True)
     product_unit = serializers.CharField(source="product.unit.code", read_only=True)
@@ -57,41 +60,12 @@ class RecipeSerializer(serializers.ModelSerializer):
         return value
 
     def validate_output_qty(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("Выход партии должен быть больше нуля.")
-        return value
-
-    def validate_lines(self, lines):
-        ids = [line["ingredient"].pk for line in lines]
-        if len(ids) != len(set(ids)):
-            raise serializers.ValidationError("Сырьё в рецептуре не должно повторяться.")
-        return lines
-
-    def validate(self, attrs):
-        if self.instance and not self.instance.is_editable:
-            raise serializers.ValidationError("Изменять можно только черновик. Создайте новую версию.")
-        return attrs
+        return positive(value, "Выход партии должен быть больше нуля.")
 
     @transaction.atomic
     def create(self, validated_data):
-        lines = validated_data.pop("lines", [])
         validated_data["version"] = next_version(validated_data["product"])
-        recipe = Recipe.objects.create(**validated_data)
-        self._save_lines(recipe, lines)
-        return recipe
-
-    @transaction.atomic
-    def update(self, instance, validated_data):
-        lines = validated_data.pop("lines", None)
-        instance = super().update(instance, validated_data)
-        if lines is not None:
-            instance.lines.all().delete()
-            self._save_lines(instance, lines)
-        return instance
-
-    @staticmethod
-    def _save_lines(recipe, lines):
-        RecipeLine.objects.bulk_create(RecipeLine(recipe=recipe, **line) for line in lines)
+        return super().create(validated_data)
 
 
 class CalculateSerializer(serializers.Serializer):

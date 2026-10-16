@@ -6,12 +6,14 @@ from django.db import transaction
 from django.db.models import Max
 from django.utils import timezone
 
+from core.exceptions import DomainError
+
 from .models import Recipe, RecipeLine
 
 QTY = Decimal("0.001")
 
 
-class RecipeError(Exception):
+class RecipeError(DomainError):
     pass
 
 

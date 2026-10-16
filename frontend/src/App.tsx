@@ -12,9 +12,15 @@ import Employees from './pages/Employees'
 import Home from './pages/Home'
 import Items from './pages/Items'
 import Login from './pages/Login'
+import Moves from './pages/Moves'
+import PurchaseOrderDetail from './pages/PurchaseOrderDetail'
+import PurchaseOrders from './pages/PurchaseOrders'
+import ReceiptDetail from './pages/ReceiptDetail'
+import Receipts from './pages/Receipts'
 import RecipeDetail from './pages/RecipeDetail'
 import Recipes from './pages/Recipes'
 import References from './pages/References'
+import Stock from './pages/Stock'
 import Suppliers from './pages/Suppliers'
 import Users from './pages/Users'
 
@@ -43,6 +49,12 @@ export default function App() {
                   <Route path="items" element={<Items />} />
                   <Route path="recipes" element={<Guard section="/recipes"><Recipes /></Guard>} />
                   <Route path="recipes/:id" element={<Guard section="/recipes"><RecipeDetail /></Guard>} />
+                  <Route path="stock" element={<Stock />} />
+                  <Route path="moves" element={<Guard section="/moves"><Moves /></Guard>} />
+                  <Route path="purchase-orders" element={<Guard section="/purchase-orders"><PurchaseOrders /></Guard>} />
+                  <Route path="purchase-orders/:id" element={<Guard section="/purchase-orders"><PurchaseOrderDetail /></Guard>} />
+                  <Route path="receipts" element={<Guard section="/receipts"><Receipts /></Guard>} />
+                  <Route path="receipts/:id" element={<Guard section="/receipts"><ReceiptDetail /></Guard>} />
                   <Route path="suppliers" element={<Guard section="/suppliers"><Suppliers /></Guard>} />
                   <Route path="employees" element={<Guard section="/employees"><Employees /></Guard>} />
                   <Route path="references" element={<Guard section="/references"><References /></Guard>} />

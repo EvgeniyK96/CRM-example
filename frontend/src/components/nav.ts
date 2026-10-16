@@ -1,16 +1,20 @@
 import type { Role } from '../api/types'
 
-export interface NavItem { key: string; label: string; roles: Role[] | 'all' }
+export interface NavItem { key: string; label: string; roles: Role[] | 'all'; group?: string }
 
 // Администратор видит всё; пустой список ролей — только администратор
 export const NAV: NavItem[] = [
   { key: '/', label: 'Главная', roles: 'all' },
-  { key: '/items', label: 'Номенклатура', roles: 'all' },
-  { key: '/recipes', label: 'Рецептуры', roles: ['technologist', 'shop_head', 'accountant'] },
-  { key: '/suppliers', label: 'Поставщики', roles: ['storekeeper', 'accountant'] },
-  { key: '/employees', label: 'Сотрудники', roles: ['hr', 'accountant', 'shop_head'] },
-  { key: '/references', label: 'Справочники', roles: ['technologist', 'hr'] },
-  { key: '/users', label: 'Пользователи', roles: [] },
+  { key: '/items', label: 'Номенклатура', roles: 'all', group: 'Производство' },
+  { key: '/recipes', label: 'Рецептуры', roles: ['technologist', 'shop_head', 'accountant'], group: 'Производство' },
+  { key: '/stock', label: 'Остатки', roles: 'all', group: 'Склад' },
+  { key: '/moves', label: 'Движения', roles: ['storekeeper', 'accountant', 'shop_head'], group: 'Склад' },
+  { key: '/purchase-orders', label: 'Заявки поставщикам', roles: ['storekeeper', 'accountant'], group: 'Закупки' },
+  { key: '/receipts', label: 'Приёмки', roles: ['storekeeper', 'accountant'], group: 'Закупки' },
+  { key: '/suppliers', label: 'Поставщики', roles: ['storekeeper', 'accountant'], group: 'Закупки' },
+  { key: '/employees', label: 'Сотрудники', roles: ['hr', 'accountant', 'shop_head'], group: 'Кадры' },
+  { key: '/references', label: 'Справочники', roles: ['technologist', 'hr'], group: 'Настройки' },
+  { key: '/users', label: 'Пользователи', roles: [], group: 'Настройки' },
 ]
 
 export const navRoles = (key: string) => NAV.find((i) => i.key === key)?.roles ?? []
