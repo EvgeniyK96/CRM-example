@@ -39,3 +39,6 @@ postgres_data/
 
 # macOS
 .DS_Store
+
+# Playwright MCP
+.playwright-mcp/

@@ -107,7 +107,7 @@ def add_to_installed_apps(name: str) -> None:
         )
         return
 
-    new_text = text.replace(MARKER, f"    {app_string},\n    {MARKER}")
+    new_text = text.replace(f"    {MARKER}", f"    {app_string},\n    {MARKER}")
     SETTINGS_FILE.write_text(new_text)
 
 

@@ -1,11 +1,13 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Button, Form, Input, Modal, Select, Table, Tag, message } from 'antd'
+import { App, Button, Form, Input, Modal, Select, Table, Tag } from 'antd'
 import { useState } from 'react'
 import { api, type Page } from '../api/client'
+import { errorText } from '../api/hooks'
 import { ROLE_LABELS, type User } from '../api/types'
 
 export default function Users() {
+  const { message } = App.useApp()
   const qc = useQueryClient()
   const [open, setOpen] = useState(false)
   const [form] = Form.useForm()
@@ -23,7 +25,7 @@ export default function Users() {
       setOpen(false)
       form.resetFields()
     },
-    onError: () => message.error('Не удалось создать (логин занят или пароль слишком простой)'),
+    onError: (e) => message.error(errorText(e)),
   })
 
   return (

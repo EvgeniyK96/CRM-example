@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { api, tokens } from '../api/client'
 import type { Role, User } from '../api/types'
 
@@ -12,24 +12,24 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState>(null!)
 
+const fetchMe = () => api.get<User>('/auth/users/me/').then((r) => r.data)
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(!!tokens.access)
 
-  const loadMe = useCallback(async () => {
-    const { data } = await api.get<User>('/auth/users/me/')
-    setUser(data)
-  }, [])
-
   useEffect(() => {
     if (!tokens.access) return
-    loadMe().catch(() => tokens.clear()).finally(() => setLoading(false))
-  }, [loadMe])
+    fetchMe()
+      .then(setUser)
+      .catch(() => tokens.clear())
+      .finally(() => setLoading(false))
+  }, [])
 
   const login = async (username: string, password: string) => {
     const { data } = await api.post('/auth/jwt/create/', { username, password })
     tokens.set(data.access, data.refresh)
-    await loadMe()
+    setUser(await fetchMe())
   }
 
   const logout = () => {

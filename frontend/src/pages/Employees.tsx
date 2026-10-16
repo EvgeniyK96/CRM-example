@@ -1,82 +1,67 @@
-import { PlusOutlined } from '@ant-design/icons'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Button, DatePicker, Form, Input, Modal, Select, Table, Tag, message } from 'antd'
-import dayjs from 'dayjs'
-import { useState } from 'react'
-import { api, type Page } from '../api/client'
+import { DatePicker, Form, Input, Select, Tag } from 'antd'
+import dayjs, { type Dayjs } from 'dayjs'
+import { toOptions, useList } from '../api/hooks'
 import type { Department, Employee, Position } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import CrudPage from '../components/CrudPage'
 
 const STATUS = { active: ['green', 'Работает'], leave: ['orange', 'В отпуске'], fired: ['red', 'Уволен'] } as const
+const DATE_FIELDS = ['birth_date', 'hire_date', 'fire_date'] as const
 
-const useList = <T,>(key: string, url: string, params: object = {}) =>
-  useQuery({ queryKey: [key, params], queryFn: async () => (await api.get<Page<T>>(url, { params: { page_size: 200, ...params } })).data })
+const toForm = (e: Employee) => ({
+  ...e,
+  ...Object.fromEntries(DATE_FIELDS.map((f) => [f, e[f] ? dayjs(e[f]) : null])),
+})
+
+const fromForm = (v: Record<string, unknown>) => ({
+  ...v,
+  ...Object.fromEntries(DATE_FIELDS.map((f) => [f, (v[f] as Dayjs | null)?.format('YYYY-MM-DD') ?? null])),
+})
 
 export default function Employees() {
   const { can } = useAuth()
-  const qc = useQueryClient()
-  const [search, setSearch] = useState('')
-  const [open, setOpen] = useState(false)
-  const [form] = Form.useForm()
-
-  const employees = useList<Employee>('employees', '/hr/employees/', { search })
-  const departments = useList<Department>('departments', '/hr/departments/')
-  const positions = useList<Position>('positions', '/hr/positions/')
-
-  const create = useMutation({
-    mutationFn: (v: object) => api.post('/hr/employees/', v),
-    onSuccess: () => {
-      message.success('Сотрудник добавлен')
-      qc.invalidateQueries({ queryKey: ['employees'] })
-      setOpen(false)
-      form.resetFields()
-    },
-    onError: () => message.error('Не удалось сохранить'),
-  })
-
-  const submit = (v: { birth_date?: dayjs.Dayjs; hire_date: dayjs.Dayjs }) =>
-    create.mutate({
-      ...v,
-      birth_date: v.birth_date?.format('YYYY-MM-DD') ?? null,
-      hire_date: v.hire_date.format('YYYY-MM-DD'),
-    })
+  const departments = useList<Department>('/hr/departments/')
+  const positions = useList<Position>('/hr/positions/')
 
   return (
-    <>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-        <Input.Search placeholder="Поиск по ФИО, телефону, ИИН" allowClear onSearch={setSearch} style={{ maxWidth: 360 }} />
-        {can('hr') && <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpen(true)}>Добавить</Button>}
-      </div>
-      <Table
-        rowKey="id"
-        loading={employees.isLoading}
-        dataSource={employees.data?.results}
-        pagination={{ pageSize: 20 }}
-        columns={[
-          { title: 'ФИО', dataIndex: 'full_name' },
-          { title: 'Подразделение', dataIndex: 'department_name' },
-          { title: 'Должность', dataIndex: 'position_name' },
-          { title: 'Принят', dataIndex: 'hire_date' },
-          { title: 'Телефон', dataIndex: 'phone' },
-          { title: 'Статус', dataIndex: 'status', render: (s: Employee['status']) => <Tag color={STATUS[s][0]}>{STATUS[s][1]}</Tag> },
-        ]}
-      />
-      <Modal title="Новый сотрудник" open={open} onCancel={() => setOpen(false)} onOk={() => form.submit()} confirmLoading={create.isPending} okText="Сохранить">
-        <Form form={form} layout="vertical" onFinish={submit} initialValues={{ hire_date: dayjs() }}>
+    <CrudPage<Employee>
+      url="/hr/employees/"
+      entity="Сотрудник"
+      canEdit={can('hr')}
+      searchPlaceholder="Поиск по ФИО, телефону, ИИН"
+      initialValues={{ hire_date: dayjs(), status: 'active' }}
+      toForm={toForm}
+      fromForm={fromForm}
+      columns={[
+        { title: 'ФИО', dataIndex: 'full_name' },
+        { title: 'Подразделение', dataIndex: 'department_name' },
+        { title: 'Должность', dataIndex: 'position_name' },
+        { title: 'Принят', dataIndex: 'hire_date' },
+        { title: 'Телефон', dataIndex: 'phone' },
+        { title: 'Статус', dataIndex: 'status', render: (s: Employee['status']) => <Tag color={STATUS[s][0]}>{STATUS[s][1]}</Tag> },
+      ]}
+      form={
+        <>
           <Form.Item name="last_name" label="Фамилия" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="first_name" label="Имя" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="middle_name" label="Отчество"><Input /></Form.Item>
           <Form.Item name="birth_date" label="Дата рождения"><DatePicker style={{ width: '100%' }} /></Form.Item>
+          <Form.Item name="tax_id" label="ИИН/ИНН"><Input /></Form.Item>
           <Form.Item name="phone" label="Телефон"><Input /></Form.Item>
+          <Form.Item name="address" label="Адрес"><Input /></Form.Item>
           <Form.Item name="department" label="Подразделение" rules={[{ required: true }]}>
-            <Select options={departments.data?.results.map((d) => ({ value: d.id, label: d.name }))} />
+            <Select options={toOptions(departments.data, (d) => d.name)} />
           </Form.Item>
           <Form.Item name="position" label="Должность" rules={[{ required: true }]}>
-            <Select options={positions.data?.results.map((p) => ({ value: p.id, label: p.name }))} />
+            <Select options={toOptions(positions.data, (p) => p.name)} />
           </Form.Item>
           <Form.Item name="hire_date" label="Дата приёма" rules={[{ required: true }]}><DatePicker style={{ width: '100%' }} /></Form.Item>
-        </Form>
-      </Modal>
-    </>
+          <Form.Item name="fire_date" label="Дата увольнения"><DatePicker style={{ width: '100%' }} /></Form.Item>
+          <Form.Item name="status" label="Статус">
+            <Select options={Object.entries(STATUS).map(([value, [, label]]) => ({ value, label }))} />
+          </Form.Item>
+        </>
+      }
+    />
   )
 }

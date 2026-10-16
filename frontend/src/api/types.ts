@@ -42,3 +42,71 @@ export interface Employee {
   fire_date: string | null
   status: 'active' | 'leave' | 'fired'
 }
+
+export type ItemKind = 'raw' | 'product'
+
+export interface Unit { id: number; code: string; name: string }
+export interface Category { id: number; name: string; kind: ItemKind; kind_display: string }
+
+export interface Item {
+  id: number
+  kind: ItemKind
+  kind_display: string
+  code: string
+  name: string
+  category: number | null
+  category_name: string | null
+  unit: number
+  unit_code: string
+  department: number | null
+  department_name: string | null
+  shelf_life_days: number
+  min_stock: string
+  sale_price: string
+  is_active: boolean
+}
+
+export interface Supplier {
+  id: number
+  name: string
+  tax_id: string
+  contact_person: string
+  phone: string
+  email: string
+  address: string
+  note: string
+  is_active: boolean
+}
+
+export type RecipeStatus = 'draft' | 'active' | 'archived'
+
+export interface RecipeLine {
+  id?: number
+  ingredient: number
+  ingredient_name?: string
+  unit_code?: string
+  quantity: string
+  loss_percent: string
+}
+
+export interface Recipe {
+  id: number
+  product: number
+  product_name: string
+  product_unit: string
+  department_name: string | null
+  version: number
+  status: RecipeStatus
+  status_display: string
+  output_qty: string
+  note: string
+  lines: RecipeLine[]
+  created_by_name: string | null
+  created_at: string
+  activated_at: string | null
+}
+
+export interface RecipeCalculation {
+  qty: string
+  lines: { ingredient: number; ingredient_name: string; unit_code: string; quantity: string }[]
+}
