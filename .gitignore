@@ -1,0 +1,41 @@
+# Секреты и окружение
+.env
+*.env
+
+# База данных
+*.sqlite3
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Виртуальные окружения
+venv/
+.venv/
+env/
+.env/
+
+# pytest / ruff
+.pytest_cache/
+.ruff_cache/
+
+# Django
+staticfiles/
+media/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+postgres_data/
+
+# macOS
+.DS_Store
