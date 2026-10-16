@@ -8,7 +8,7 @@ import { PO_STATUS, RECEIPT_STATUS } from '../api/statuses'
 import type { PurchaseOrder, PurchaseOrderLine, Receipt, Supplier } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import LinesFormList from '../components/LinesFormList'
-import { useRawLineColumns } from '../components/rawLineColumns'
+import { useItemLineColumns } from '../components/itemLineColumns'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty, fromApiDate, toApiDate } from '../utils/format'
 
@@ -101,7 +101,7 @@ function OrderLines({ lines }: { lines: PurchaseOrderLine[] }) {
 
 function OrderEditor({ order }: { order: PurchaseOrder }) {
   const [form] = Form.useForm()
-  const columns = useRawLineColumns()
+  const columns = useItemLineColumns({ kind: 'raw' })
   const suppliers = useList<Supplier>('/catalog/suppliers/', { is_active: true })
   const save = useApiAction((v: object) => api.patch(`${URL}${order.id}/`, v), { success: 'Сохранено', invalidate: [URL] })
 

@@ -212,3 +212,61 @@ export interface Receipt {
   posted_by_name: string | null
   posted_at: string | null
 }
+
+export type ClientKind = 'wholesale' | 'store' | 'brand_store'
+
+export interface Client {
+  id: number
+  kind: ClientKind
+  kind_display: string
+  name: string
+  tax_id: string
+  contact_person: string
+  phone: string
+  email: string
+  legal_address: string
+  delivery_address: string
+  discount_percent: string
+  payment_delay_days: number
+  note: string
+  is_active: boolean
+}
+
+export interface SalesOrderLine extends Omit<DocLine, 'price'> {
+  price: string | null
+  reserved_qty?: string
+  to_produce?: string
+}
+
+export type SalesOrderStatus = 'new' | 'confirmed' | 'in_production' | 'ready' | 'shipped' | 'cancelled'
+
+export interface SalesOrder {
+  id: number
+  number: string
+  client: number
+  client_name: string
+  client_kind: ClientKind
+  status: SalesOrderStatus
+  status_display: string
+  delivery_date: string
+  delivery_address: string
+  discount_percent: string
+  comment: string
+  lines: SalesOrderLine[]
+  total: string
+  created_by_name: string | null
+  created_at: string
+  confirmed_by_name: string | null
+  confirmed_at: string | null
+}
+
+export interface AvailabilityRow {
+  line: number
+  item: number
+  item_name: string
+  unit_code: string
+  quantity: string
+  free_stock: string
+  from_stock: string
+  to_produce: string
+}

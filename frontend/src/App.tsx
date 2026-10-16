@@ -8,11 +8,14 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import AppLayout from './components/Layout'
 import { navRoles } from './components/nav'
+import Clients from './pages/Clients'
 import Employees from './pages/Employees'
 import Home from './pages/Home'
 import Items from './pages/Items'
 import Login from './pages/Login'
 import Moves from './pages/Moves'
+import OrderDetail from './pages/OrderDetail'
+import Orders from './pages/Orders'
 import PurchaseOrderDetail from './pages/PurchaseOrderDetail'
 import PurchaseOrders from './pages/PurchaseOrders'
 import ReceiptDetail from './pages/ReceiptDetail'
@@ -46,6 +49,9 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route element={<AppLayout />}>
                   <Route index element={<Home />} />
+                  <Route path="orders" element={<Guard section="/orders"><Orders /></Guard>} />
+                  <Route path="orders/:id" element={<Guard section="/orders"><OrderDetail /></Guard>} />
+                  <Route path="clients" element={<Guard section="/clients"><Clients /></Guard>} />
                   <Route path="items" element={<Items />} />
                   <Route path="recipes" element={<Guard section="/recipes"><Recipes /></Guard>} />
                   <Route path="recipes/:id" element={<Guard section="/recipes"><RecipeDetail /></Guard>} />

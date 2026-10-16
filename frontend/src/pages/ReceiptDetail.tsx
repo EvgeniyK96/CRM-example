@@ -8,7 +8,7 @@ import { RECEIPT_STATUS } from '../api/statuses'
 import type { Receipt, ReceiptLine, Supplier } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import LinesFormList from '../components/LinesFormList'
-import { useRawLineColumns } from '../components/rawLineColumns'
+import { useItemLineColumns } from '../components/itemLineColumns'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty, fromApiDate, toApiDate } from '../utils/format'
 
@@ -81,7 +81,7 @@ function ReceiptEditor({ receipt }: { receipt: Receipt }) {
   const [form] = Form.useForm()
   const suppliers = useList<Supplier>('/catalog/suppliers/', { is_active: true })
   // Строки из заявки нельзя переназначить на другое сырьё — только поправить количество, цену и срок
-  const base = useRawLineColumns({ lockItem: (line) => !!line.order_line })
+  const base = useItemLineColumns({ kind: 'raw', lockItem: (line) => !!line.order_line })
   const columns = [
     ...base.slice(0, 3),
     {

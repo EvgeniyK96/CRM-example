@@ -29,6 +29,5 @@ class Command(BaseCommand):
             if created:
                 user.set_password(DEMO_PASSWORD)
                 user.save()
-        call_command("seed_recipes", stdout=self.stdout)
-        call_command("seed_purchasing", stdout=self.stdout)
+        call_command("seed_sales", stdout=self.stdout)  # тянет за собой рецептуры, каталог и закупки
         self.stdout.write(self.style.SUCCESS(f"Готово. Пользователи: {', '.join(u for u, *_ in USERS)}; пароль {DEMO_PASSWORD}"))

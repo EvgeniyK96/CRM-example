@@ -30,3 +30,18 @@ export const MOVE_KIND: Record<string, StatusInfo> = {
 
 export const statusOptions = (map: Record<string, StatusInfo>) =>
   Object.entries(map).map(([value, s]) => ({ value, label: s.label }))
+
+export const SALES_ORDER_STATUS: Record<string, StatusInfo> = {
+  new: { color: 'blue', label: 'Новый' },
+  confirmed: { color: 'gold', label: 'Подтверждён' },
+  in_production: { color: 'orange', label: 'В производстве' },
+  ready: { color: 'cyan', label: 'Готов к отгрузке' },
+  shipped: { color: 'green', label: 'Отгружен' },
+  cancelled: { color: 'default', label: 'Отменён' },
+}
+
+export const CLIENT_KIND: Record<string, StatusInfo> = {
+  wholesale: { color: 'purple', label: 'Опт' },
+  store: { color: 'blue', label: 'Магазин' },
+  brand_store: { color: 'magenta', label: 'Фирменный' },
+}
