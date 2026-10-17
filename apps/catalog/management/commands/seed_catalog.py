@@ -5,7 +5,9 @@ from django.db import transaction
 from apps.catalog.models import Category, Item, ItemKind, Supplier, Unit
 from apps.hr.models import Department
 
-UNITS = [("кг", "килограмм"), ("г", "грамм"), ("л", "литр"), ("шт", "штука"), ("уп", "упаковка")]
+# обозначение, название, делимая ли единица
+UNITS = [("кг", "килограмм", True), ("г", "грамм", True), ("л", "литр", True), ("шт", "штука", False),
+         ("уп", "упаковка", False)]
 
 # код, название, категория, ед., срок годности (дней), минимальный остаток
 RAW = [
@@ -64,7 +66,10 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         call_command("seed_hr", stdout=self.stdout)
-        units = {code: Unit.objects.get_or_create(code=code, defaults={"name": name})[0] for code, name in UNITS}
+        units = {
+            code: Unit.objects.update_or_create(code=code, defaults={"name": name, "is_fractional": fractional})[0]
+            for code, name, fractional in UNITS
+        }
 
         def category(name, kind):
             return Category.objects.get_or_create(name=name, kind=kind)[0]

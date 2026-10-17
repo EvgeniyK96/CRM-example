@@ -7,8 +7,8 @@ import dayjs, { type Dayjs } from 'dayjs'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { toOptions, useApiAction, useDetail, useList } from '../api/hooks'
-import { CLIENT_KIND, SALES_ORDER_STATUS } from '../api/statuses'
-import type { AvailabilityRow, Client, SalesOrder, SalesOrderLine } from '../api/types'
+import { CLIENT_KIND, SALES_ORDER_STATUS, TASK_STATUS } from '../api/statuses'
+import type { AvailabilityRow, Client, ProductionTask, SalesOrder, SalesOrderLine } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { useItemLineColumns } from '../components/itemLineColumns'
 import LinesFormList from '../components/LinesFormList'
@@ -93,7 +93,29 @@ export default function OrderDetail() {
       ) : (
         <OrderLines order={order} />
       )}
+      {order.status !== 'new' && <OrderTasks order={order} />}
     </Space>
+  )
+}
+
+/** Производственные задания, которые закрывают этот заказ. */
+function OrderTasks({ order }: { order: SalesOrder }) {
+  const tasks = useList<ProductionTask>('/production/tasks/', { order: order.id })
+  if (!tasks.data?.length) return null
+  return (
+    <Card title="Производство" size="small">
+      <Table<ProductionTask> rowKey="id" size="small" pagination={false} dataSource={tasks.data} columns={[
+        { title: 'Задание', render: (_, t) => <Link to={`/tasks/${t.id}`}>{t.number}</Link> },
+        { title: 'Продукт', dataIndex: 'product_name' },
+        { title: 'Цех', dataIndex: 'department_name' },
+        { title: 'Дата', dataIndex: 'planned_date', render: fmtDate },
+        {
+          title: 'Для заказа', align: 'right',
+          render: (_, t) => fmtQty(t.allocations.find((a) => a.order === order.id)?.quantity, t.unit_code),
+        },
+        { title: 'Статус', dataIndex: 'status', render: (s: string) => <StatusTag map={TASK_STATUS} value={s} /> },
+      ]} />
+    </Card>
   )
 }
 

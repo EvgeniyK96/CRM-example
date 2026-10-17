@@ -1,33 +1,46 @@
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from apps.accounts.models import Role, User
+from apps.hr.models import Department, Employee, Position
 
 DEMO_PASSWORD = "demo12345"
 
+# логин, роль, имя, фамилия, подразделение, должность (None — без карточки сотрудника)
 USERS = [
-    ("admin", Role.ADMIN, "Администратор"),
-    ("sales", Role.SALES, "Мария"),
-    ("hr", Role.HR, "Ольга"),
-    ("accountant", Role.ACCOUNTANT, "Галина"),
-    ("tech", Role.TECHNOLOGIST, "Анна"),
-    ("shop_head", Role.SHOP_HEAD, "Сергей"),
-    ("storekeeper", Role.STOREKEEPER, "Виктор"),
+    ("admin", Role.ADMIN, "Администратор", "", None, None),
+    ("sales", Role.SALES, "Мария", "Смирнова", "Отдел продаж", "Менеджер по продажам"),
+    ("hr", Role.HR, "Ольга", "Иванова", "Отдел кадров", "Специалист по кадрам"),
+    ("accountant", Role.ACCOUNTANT, "Галина", "Петрова", "Бухгалтерия", "Бухгалтер"),
+    ("tech", Role.TECHNOLOGIST, "Анна", "Ли", "Технологический отдел", "Технолог"),
+    ("shop_head", Role.SHOP_HEAD, "Сергей", "Кузнецов", "Производственная служба", "Начальник производства"),
+    ("shop_cakes", Role.SHOP_HEAD, "Ирина", "Ахметова", "Цех тортов и пирожных", "Начальник цеха"),
+    ("shop_ginger", Role.SHOP_HEAD, "Павел", "Морозов", "Пряничный цех", "Начальник цеха"),
+    ("storekeeper", Role.STOREKEEPER, "Виктор", "Ким", "Склад", "Кладовщик"),
 ]
 
 
 class Command(BaseCommand):
-    help = "Полный набор учебных данных: пользователи всех ролей, справочники, рецептуры, остатки"
+    help = "Полный набор учебных данных: пользователи и сотрудники, справочники, рецептуры, склад, заказы, производство"
 
     def handle(self, *args, **options):
-        for username, role, first_name in USERS:
+        call_command("seed_hr", stdout=self.stdout)
+        hire_date = timezone.localdate().replace(month=1, day=10)
+        for username, role, first_name, last_name, dep, pos in USERS:
             user, created = User.objects.get_or_create(
                 username=username,
-                defaults={"role": role, "first_name": first_name, "is_staff": role == Role.ADMIN,
-                          "is_superuser": role == Role.ADMIN},
+                defaults={"role": role, "first_name": first_name, "last_name": last_name,
+                          "is_staff": role == Role.ADMIN, "is_superuser": role == Role.ADMIN},
             )
             if created:
                 user.set_password(DEMO_PASSWORD)
                 user.save()
-        call_command("seed_sales", stdout=self.stdout)  # тянет за собой рецептуры, каталог и закупки
-        self.stdout.write(self.style.SUCCESS(f"Готово. Пользователи: {', '.join(u for u, *_ in USERS)}; пароль {DEMO_PASSWORD}"))
+            if dep and not Employee.objects.filter(user=user).exists():
+                Employee.objects.create(
+                    user=user, last_name=last_name, first_name=first_name, hire_date=hire_date,
+                    department=Department.objects.get(name=dep), position=Position.objects.get(name=pos),
+                )
+        call_command("seed_production", stdout=self.stdout)  # тянет за собой каталог, рецептуры, закупки, продажи
+        names = ", ".join(u for u, *_ in USERS)
+        self.stdout.write(self.style.SUCCESS(f"Готово. Пользователи: {names}; пароль новых — {DEMO_PASSWORD}"))

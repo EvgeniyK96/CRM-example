@@ -25,6 +25,9 @@ import Recipes from './pages/Recipes'
 import References from './pages/References'
 import Stock from './pages/Stock'
 import Suppliers from './pages/Suppliers'
+import TaskDetail from './pages/TaskDetail'
+import Tasks from './pages/Tasks'
+import Trace from './pages/Trace'
 import Users from './pages/Users'
 
 dayjs.locale('ru')
@@ -52,6 +55,9 @@ export default function App() {
                   <Route path="orders" element={<Guard section="/orders"><Orders /></Guard>} />
                   <Route path="orders/:id" element={<Guard section="/orders"><OrderDetail /></Guard>} />
                   <Route path="clients" element={<Guard section="/clients"><Clients /></Guard>} />
+                  <Route path="tasks" element={<Guard section="/tasks"><Tasks /></Guard>} />
+                  <Route path="tasks/:id" element={<Guard section="/tasks"><TaskDetail /></Guard>} />
+                  <Route path="trace/:lotId" element={<Trace />} />
                   <Route path="items" element={<Items />} />
                   <Route path="recipes" element={<Guard section="/recipes"><Recipes /></Guard>} />
                   <Route path="recipes/:id" element={<Guard section="/recipes"><RecipeDetail /></Guard>} />

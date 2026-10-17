@@ -71,7 +71,7 @@ function ReceiptLines({ lines }: { lines: ReceiptLine[] }) {
         { title: 'Цена', dataIndex: 'price', align: 'right', render: fmtMoney },
         { title: 'Сумма', dataIndex: 'amount', align: 'right', render: fmtMoney },
         { title: 'Годен до', dataIndex: 'expiry_date', render: fmtDate },
-        { title: 'Партия', dataIndex: 'lot_number', render: (v) => v ?? '—' },
+        { title: 'Партия', render: (_, l) => (l.lot ? <Link to={`/trace/${l.lot}`}>{l.lot_number}</Link> : '—') },
       ]} />
     </Card>
   )

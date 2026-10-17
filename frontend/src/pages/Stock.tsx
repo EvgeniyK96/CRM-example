@@ -1,5 +1,6 @@
 import { Button, Form, Input, InputNumber, Modal, Segmented, Switch, Table, Tag, Typography, type TableColumnsType } from 'antd'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { useApiAction, useList } from '../api/hooks'
 import type { ItemKind, Lot, StockRow } from '../api/types'
@@ -29,7 +30,7 @@ function LotsTable({ item, canWriteOff }: { item: number; canWriteOff: boolean }
   )
 
   const columns: TableColumnsType<Lot> = [
-    { title: 'Партия', dataIndex: 'number' },
+    { title: 'Партия', render: (_, lot) => <Link to={`/trace/${lot.id}`} title="Прослеживаемость">{lot.number}</Link> },
     { title: 'Поставщик', dataIndex: 'supplier_name', render: (v) => v ?? '—' },
     { title: 'Поступила', dataIndex: 'date', render: fmtDate },
     { title: 'Годен до', dataIndex: 'expiry_date', render: fmtDate },

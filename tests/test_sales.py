@@ -153,6 +153,6 @@ def test_mine_filter(make_client, client_wholesale, cake):
 def test_seed_sales(db):
     from django.core.management import call_command
 
-    call_command("seed_demo")
+    call_command("seed_sales")  # без производства: seed_demo дальше переводит заказы в «в производстве»
     statuses = list(SalesOrder.objects.order_by("pk").values_list("status", flat=True))
     assert statuses == ["ready", "confirmed", "confirmed", "new"]

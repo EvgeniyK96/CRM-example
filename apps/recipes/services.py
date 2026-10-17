@@ -1,6 +1,6 @@
 """Бизнес-логика рецептур: версии, активация, расчёт потребности в сырье."""
 
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_CEILING, ROUND_HALF_UP, Decimal
 
 from django.db import transaction
 from django.db.models import Max
@@ -70,7 +70,14 @@ def calculate(recipe: Recipe, qty: Decimal) -> list[dict]:
             "ingredient": line.ingredient_id,
             "ingredient_name": line.ingredient.name,
             "unit_code": line.ingredient.unit.code,
-            "quantity": (line.gross_quantity * factor).quantize(QTY, ROUND_HALF_UP),
+            "quantity": _round(line.gross_quantity * factor, line.ingredient.unit),
         }
         for line in recipe.lines.select_related("ingredient__unit")
     ]
+
+
+def _round(quantity: Decimal, unit) -> Decimal:
+    """Неделимые единицы (штуки, упаковки) — вверх до целого: 20.6 яйца → 21."""
+    if not unit.is_fractional:
+        return quantity.to_integral_value(ROUND_CEILING)
+    return quantity.quantize(QTY, ROUND_HALF_UP)

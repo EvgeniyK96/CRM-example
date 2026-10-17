@@ -4,6 +4,9 @@ from django.db import models
 class Unit(models.Model):
     code = models.CharField("Обозначение", max_length=10, unique=True)
     name = models.CharField("Название", max_length=50)
+    is_fractional = models.BooleanField(
+        "Делимая", default=True, help_text="Нет — потребность округляется до целого вверх (штуки, упаковки)"
+    )
 
     class Meta:
         verbose_name = "Единица измерения"

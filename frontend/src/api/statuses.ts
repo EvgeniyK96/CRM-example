@@ -45,3 +45,10 @@ export const CLIENT_KIND: Record<string, StatusInfo> = {
   store: { color: 'blue', label: 'Магазин' },
   brand_store: { color: 'magenta', label: 'Фирменный' },
 }
+
+export const TASK_STATUS: Record<string, StatusInfo> = {
+  planned: { color: 'blue', label: 'Запланировано' },
+  in_progress: { color: 'orange', label: 'В работе' },
+  done: { color: 'green', label: 'Выполнено' },
+  cancelled: { color: 'default', label: 'Отменено' },
+}

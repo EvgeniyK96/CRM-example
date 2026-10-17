@@ -8,6 +8,8 @@ interface AuthState {
   login: (username: string, password: string) => Promise<void>
   logout: () => void
   can: (...roles: Role[]) => boolean
+  /** Может ли пользователь управлять заданиями цеха (начальник цеха — только своего) */
+  canManageDepartment: (departmentId: number) => boolean
 }
 
 const AuthContext = createContext<AuthState>(null!)
@@ -39,7 +41,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const can = (...roles: Role[]) => !!user && (user.role === 'admin' || roles.includes(user.role))
 
-  return <AuthContext.Provider value={{ user, loading, login, logout, can }}>{children}</AuthContext.Provider>
+  const canManageDepartment = (departmentId: number) =>
+    can('shop_head') && (user?.role !== 'shop_head' || !user.production_department || user.production_department === departmentId)
+
+  return <AuthContext.Provider value={{ user, loading, login, logout, can, canManageDepartment }}>{children}</AuthContext.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

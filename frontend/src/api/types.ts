@@ -19,6 +19,11 @@ export interface User {
   role: Role
   role_display: string
   is_active: boolean
+  /** Подразделение из карточки сотрудника; у начальника цеха ограничивает доступ к заданиям */
+  department: number | null
+  department_name: string | null
+  /** Производственный цех сотрудника (если есть) */
+  production_department: number | null
 }
 
 export interface Department { id: number; name: string; is_production: boolean; is_active: boolean }
@@ -269,4 +274,96 @@ export interface AvailabilityRow {
   free_stock: string
   from_stock: string
   to_produce: string
+}
+
+export type TaskStatus = 'planned' | 'in_progress' | 'done' | 'cancelled'
+
+export interface TaskAllocation {
+  id: number
+  order: number
+  order_number: string
+  order_status: SalesOrderStatus
+  client_name: string
+  delivery_date: string
+  quantity: string
+  fulfilled: string
+}
+
+export interface ProductionTask {
+  id: number
+  number: string
+  department: number
+  department_name: string
+  product: number
+  product_name: string
+  unit_code: string
+  recipe: number
+  recipe_version: number
+  planned_qty: string
+  planned_date: string
+  status: TaskStatus
+  status_display: string
+  actual_qty: string | null
+  defect_qty: string
+  raw_cost: string | null
+  unit_cost: string | null
+  output_lot: number | null
+  output_lot_number: string | null
+  comment: string
+  allocations: TaskAllocation[]
+  created_by_name: string | null
+  created_at: string
+  started_by_name: string | null
+  started_at: string | null
+  finished_by_name: string | null
+  finished_at: string | null
+}
+
+export interface Requirement {
+  ingredient: number
+  ingredient_name: string
+  unit_code: string
+  quantity: string
+  available: string
+  shortage: string
+}
+
+export interface TaskConsumption {
+  id: number
+  lot: number
+  lot_number: string
+  item_name: string
+  unit_code: string
+  supplier_name: string | null
+  expiry_date: string
+  unit_cost: string
+  quantity: string
+}
+
+export interface DemandGroup {
+  product: number
+  product_name: string
+  unit_code: string
+  department: number
+  department_name: string | null
+  quantity: string
+  earliest_date: string
+  orders: { order: number; order_number: string; client_name: string; delivery_date: string; quantity: string }[]
+}
+
+export interface TraceLot {
+  id: number
+  number: string
+  item_name: string
+  unit_code: string
+  date: string
+  expiry_date: string
+  supplier_name: string | null
+}
+
+export interface LotTrace {
+  lot: TraceLot
+  produced_by: { id: number; number: string; department_name: string; recipe_version: number; finished_at: string } | null
+  ingredients: (TraceLot & { quantity: string })[]
+  used_in: { task: number; task_number: string; quantity: string; output_lot: TraceLot | null }[]
 }
