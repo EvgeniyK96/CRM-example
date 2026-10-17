@@ -10,6 +10,7 @@ import AppLayout from './components/Layout'
 import { navRoles } from './components/nav'
 import Absences from './pages/Absences'
 import Accounts from './pages/Accounts'
+import Analytics from './pages/Analytics'
 import Clients from './pages/Clients'
 import Employees from './pages/Employees'
 import FinanceReports from './pages/FinanceReports'
@@ -91,6 +92,7 @@ export default function App() {
                   <Route path="hr-orders" element={<Guard section="/hr-orders"><HROrders /></Guard>} />
                   <Route path="absences" element={<Guard section="/absences"><Absences /></Guard>} />
                   <Route path="timesheet" element={<Guard section="/timesheet"><Timesheet /></Guard>} />
+                  <Route path="analytics" element={<Guard section="/analytics"><Analytics /></Guard>} />
                   <Route path="items" element={<Items />} />
                   <Route path="recipes" element={<Guard section="/recipes"><Recipes /></Guard>} />
                   <Route path="recipes/:id" element={<Guard section="/recipes"><RecipeDetail /></Guard>} />

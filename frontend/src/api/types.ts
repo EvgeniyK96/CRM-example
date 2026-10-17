@@ -655,3 +655,51 @@ export interface Payslip {
   employer_total: string
   lines: { id: number; code: string; name: string; payer: 'employee' | 'employer'; base: string; percent: string; amount: string }[]
 }
+
+// --- Отчёты ---
+
+export interface ProductSales { product: number; name: string; unit_code: string; quantity: string; revenue: string; cost: string; margin: string; margin_percent: string | null }
+export interface ClientSales { client: number; name: string; kind: ClientKind; revenue: string; cost: string; margin: string; margin_percent: string | null }
+export interface WorkshopLoad { department: number; name: string; planned: number; in_progress: number; done: number }
+export interface ProductionOutput { product: number; name: string; unit_code: string; department_name: string; tasks: number; output: string; defect: string; raw_cost: string; defect_percent: string }
+export interface BelowMin { item: number; code: string; name: string; unit_code: string; available: string; min_stock: string; shortage: string }
+export interface ExpiringLot { lot: number; number: string; name: string; kind: ItemKind; unit_code: string; balance: string; expiry_date: string; days_left: number; status: 'expiring' | 'expired'; value: string }
+export interface StockValuation { item: number; code: string; name: string; kind: ItemKind; unit_code: string; quantity: string; available: string; value: string; min_stock: string }
+
+export interface SalesReport {
+  revenue: string
+  cost: string
+  gross_profit: string
+  by_day: { date: string; revenue: string }[]
+  by_product: ProductSales[]
+  by_client: ClientSales[]
+}
+
+export interface ProductionReport { load: WorkshopLoad[]; output: ProductionOutput[] }
+
+export interface StockReport {
+  raw_value: string
+  product_value: string
+  expired_value: string
+  valuation: StockValuation[]
+  expiring: ExpiringLot[]
+  below_min: BelowMin[]
+}
+
+export interface Dashboard {
+  date_from: string
+  date_to: string
+  sections: ('sales' | 'finance' | 'production' | 'warehouse')[]
+  sales?: {
+    revenue: string
+    revenue_prev: string
+    gross_profit: string
+    by_day: { date: string; revenue: string }[]
+    top_products: ProductSales[]
+    top_clients: ClientSales[]
+    orders: Record<SalesOrderStatus, number>
+  }
+  finance?: { receivables: string; overdue: string }
+  production?: ProductionReport
+  warehouse?: Pick<StockReport, 'raw_value' | 'product_value' | 'expired_value' | 'below_min' | 'expiring'>
+}

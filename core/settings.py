@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "apps.production",
     "apps.accounting",
     "apps.payroll",
+    "apps.reports",
     # LOCAL_APPS_MARKER — не удаляй эту строку, она используется create_app.py
 ]
 

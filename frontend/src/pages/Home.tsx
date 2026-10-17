@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { api } from '../api/client'
 import type { Payslip } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import Dashboard from '../components/Dashboard'
 import PayslipView from '../components/PayslipView'
 
 /** Свои расчётные листки (для сотрудников с учётной записью). */
@@ -30,7 +31,8 @@ export default function Home() {
     <>
       <Typography.Title level={3}>Добро пожаловать, {user?.first_name || user?.username}</Typography.Title>
       {user?.department_name && <Typography.Paragraph type="secondary">{user.role_display} · {user.department_name}</Typography.Paragraph>}
-      <MyPayslips />
+      <Dashboard />
+      <div style={{ marginTop: 16 }}><MyPayslips /></div>
     </>
   )
 }

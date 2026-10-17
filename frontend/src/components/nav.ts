@@ -5,6 +5,7 @@ export interface NavItem { key: string; label: string; roles: Role[] | 'all'; gr
 // Администратор видит всё; пустой список ролей — только администратор
 export const NAV: NavItem[] = [
   { key: '/', label: 'Главная', roles: 'all' },
+  { key: '/analytics', label: 'Аналитика', roles: ['sales', 'accountant', 'shop_head', 'technologist', 'storekeeper'] },
   { key: '/orders', label: 'Заказы клиентов', roles: ['sales', 'accountant', 'storekeeper', 'shop_head'], group: 'Продажи' },
   { key: '/clients', label: 'Клиенты', roles: ['sales', 'accountant'], group: 'Продажи' },
   { key: '/tasks', label: 'Задания', roles: ['shop_head', 'technologist', 'storekeeper', 'accountant', 'sales'], group: 'Производство' },
