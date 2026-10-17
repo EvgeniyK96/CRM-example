@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 
 import environ
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "apps.sales",
     "apps.production",
     "apps.accounting",
+    "apps.payroll",
     # LOCAL_APPS_MARKER — не удаляй эту строку, она используется create_app.py
 ]
 
@@ -145,3 +147,7 @@ SWAGGER_SETTINGS = {
     },
     "USE_SESSION_AUTH": False,
 }
+
+# Зарплата (учебные значения): стандартный вычет при расчёте ИПН и среднее число календарных дней в месяце
+PAYROLL_STANDARD_DEDUCTION = Decimal(env.str("PAYROLL_STANDARD_DEDUCTION", default="60550"))  # ≈ 14 МРП
+PAYROLL_AVG_MONTH_DAYS = Decimal(env.str("PAYROLL_AVG_MONTH_DAYS", default="29.3"))

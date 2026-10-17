@@ -44,6 +44,8 @@ class JournalEntry(models.Model):
         WRITE_OFF = "write_off", "Списание"
         OPENING = "opening", "Начальные остатки"
         PAYMENT = "payment", "Платёж"
+        PAYROLL = "payroll", "Начисление зарплаты"
+        PAYROLL_PAYMENT = "payroll_payment", "Выплата зарплаты"
 
     date = models.DateField("Дата")
     description = models.CharField("Содержание", max_length=255)

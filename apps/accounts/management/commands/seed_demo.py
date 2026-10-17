@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from apps.accounts.models import Role, User
+from apps.hr import services as hr
 from apps.hr.models import Department, Employee, Position
 
 DEMO_PASSWORD = "demo12345"
@@ -37,10 +38,11 @@ class Command(BaseCommand):
                 user.set_password(DEMO_PASSWORD)
                 user.save()
             if dep and not Employee.objects.filter(user=user).exists():
-                Employee.objects.create(
+                employee = Employee.objects.create(
                     user=user, last_name=last_name, first_name=first_name, hire_date=hire_date,
                     department=Department.objects.get(name=dep), position=Position.objects.get(name=pos),
                 )
-        call_command("seed_accounting", stdout=self.stdout)  # тянет за собой все модули по цепочке до бухгалтерии
+                hr.hire(employee)
+        call_command("seed_payroll", stdout=self.stdout)  # тянет за собой все модули по цепочке до зарплаты
         names = ", ".join(u for u, *_ in USERS)
         self.stdout.write(self.style.SUCCESS(f"Готово. Пользователи: {names}; пароль новых — {DEMO_PASSWORD}"))

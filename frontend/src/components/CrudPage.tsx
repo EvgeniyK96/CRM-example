@@ -10,7 +10,8 @@ interface Props<T extends { id: number }> {
   /** Название сущности для заголовка формы, например «Сотрудник» */
   entity: string
   columns: TableColumnsType<T>
-  form: ReactNode
+  /** Поля формы; функция получает редактируемую запись (null — новая) */
+  form: ReactNode | ((row: T | null) => ReactNode)
   canEdit: boolean
   params?: Record<string, unknown>
   toolbar?: ReactNode
@@ -88,7 +89,7 @@ export default function CrudPage<T extends { id: number }>(props: Props<T>) {
         ]}
       >
         <Form form={form} layout="vertical" preserve={false} initialValues={initial} onFinish={(v) => save.mutate(fromForm ? fromForm(v) : v)}>
-          {props.form}
+          {typeof props.form === 'function' ? props.form(editing ?? null) : props.form}
         </Form>
       </Modal>
     </>

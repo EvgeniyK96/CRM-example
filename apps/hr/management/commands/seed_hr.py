@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from apps.hr import services as hr
 from apps.hr.models import Department, Employee, Position
 
 DEPARTMENTS = [
@@ -51,8 +52,10 @@ class Command(BaseCommand):
             Position.objects.get_or_create(name=name, defaults={"base_salary": salary})
         hire_date = timezone.localdate().replace(month=1, day=10)
         for last, first, dep, pos in WORKERS:
-            Employee.objects.get_or_create(last_name=last, first_name=first, defaults={
+            employee, created = Employee.objects.get_or_create(last_name=last, first_name=first, defaults={
                 "department": Department.objects.get(name=dep), "position": Position.objects.get(name=pos),
                 "hire_date": hire_date,
             })
+            if created:
+                hr.hire(employee)
         self.stdout.write(self.style.SUCCESS("Справочники HR заполнены"))

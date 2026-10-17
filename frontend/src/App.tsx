@@ -8,11 +8,13 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import AppLayout from './components/Layout'
 import { navRoles } from './components/nav'
+import Absences from './pages/Absences'
 import Accounts from './pages/Accounts'
 import Clients from './pages/Clients'
 import Employees from './pages/Employees'
 import FinanceReports from './pages/FinanceReports'
 import Home from './pages/Home'
+import HROrders from './pages/HROrders'
 import Invoices from './pages/Invoices'
 import Items from './pages/Items'
 import Journal from './pages/Journal'
@@ -21,6 +23,9 @@ import Moves from './pages/Moves'
 import OrderDetail from './pages/OrderDetail'
 import Orders from './pages/Orders'
 import Payments from './pages/Payments'
+import Payroll from './pages/Payroll'
+import PayrollDetail from './pages/PayrollDetail'
+import PayrollRates from './pages/PayrollRates'
 import PurchaseOrderDetail from './pages/PurchaseOrderDetail'
 import PurchaseOrders from './pages/PurchaseOrders'
 import ReceiptDetail from './pages/ReceiptDetail'
@@ -35,6 +40,7 @@ import Stock from './pages/Stock'
 import Suppliers from './pages/Suppliers'
 import TaskDetail from './pages/TaskDetail'
 import Tasks from './pages/Tasks'
+import Timesheet from './pages/Timesheet'
 import Trace from './pages/Trace'
 import Users from './pages/Users'
 
@@ -79,6 +85,12 @@ export default function App() {
                   <Route path="journal" element={<Guard section="/journal"><Journal /></Guard>} />
                   <Route path="finance" element={<Guard section="/finance"><FinanceReports /></Guard>} />
                   <Route path="accounts" element={<Guard section="/accounts"><Accounts /></Guard>} />
+                  <Route path="payroll" element={<Guard section="/payroll"><Payroll /></Guard>} />
+                  <Route path="payroll/:id" element={<Guard section="/payroll"><PayrollDetail /></Guard>} />
+                  <Route path="payroll-rates" element={<Guard section="/payroll-rates"><PayrollRates /></Guard>} />
+                  <Route path="hr-orders" element={<Guard section="/hr-orders"><HROrders /></Guard>} />
+                  <Route path="absences" element={<Guard section="/absences"><Absences /></Guard>} />
+                  <Route path="timesheet" element={<Guard section="/timesheet"><Timesheet /></Guard>} />
                   <Route path="items" element={<Items />} />
                   <Route path="recipes" element={<Guard section="/recipes"><Recipes /></Guard>} />
                   <Route path="recipes/:id" element={<Guard section="/recipes"><RecipeDetail /></Guard>} />

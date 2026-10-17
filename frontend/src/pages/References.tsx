@@ -1,7 +1,9 @@
-import { Form, Input, InputNumber, Select, Switch, Tabs, Tag } from 'antd'
-import type { Category, Department, Position, Unit } from '../api/types'
+import { DatePicker, Form, Input, InputNumber, Select, Switch, Tabs, Tag } from 'antd'
+import dayjs, { type Dayjs } from 'dayjs'
+import type { Category, Department, Holiday, Position, Unit } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import CrudPage from '../components/CrudPage'
+import { fromApiDate, toApiDate } from '../utils/format'
 
 const KIND_OPTIONS = [{ value: 'raw', label: 'Сырьё' }, { value: 'product', label: 'Готовая продукция' }]
 
@@ -85,6 +87,29 @@ export default function References() {
             <>
               <Form.Item name="name" label="Название" rules={[{ required: true }]}><Input /></Form.Item>
               <Form.Item name="base_salary" label="Базовый оклад"><InputNumber min="0" stringMode style={{ width: '100%' }} /></Form.Item>
+            </>
+          }
+        />
+      ),
+    },
+    {
+      key: 'holidays',
+      label: 'Праздничные дни',
+      children: (
+        <CrudPage<Holiday>
+          url="/hr/holidays/"
+          entity="Праздничный день"
+          canEdit={hr}
+          toForm={(h) => ({ ...h, date: fromApiDate(h.date) })}
+          fromForm={(v) => ({ ...v, date: toApiDate(v.date as Dayjs) })}
+          columns={[
+            { title: 'Дата', dataIndex: 'date', width: 140, render: (d: string) => dayjs(d).format('DD.MM.YYYY, dd') },
+            { title: 'Праздник', dataIndex: 'name' },
+          ]}
+          form={
+            <>
+              <Form.Item name="date" label="Дата" rules={[{ required: true }]}><DatePicker style={{ width: '100%' }} /></Form.Item>
+              <Form.Item name="name" label="Название" rules={[{ required: true }]}><Input /></Form.Item>
             </>
           }
         />

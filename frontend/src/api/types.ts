@@ -46,6 +46,8 @@ export interface Employee {
   hire_date: string
   fire_date: string | null
   status: 'active' | 'leave' | 'fired'
+  salary: string
+  username: string | null
 }
 
 export type ItemKind = 'raw' | 'product'
@@ -546,4 +548,110 @@ export interface ProfitLoss {
   admin_expenses: string
   other_expenses: string
   net_profit: string
+}
+
+// --- Кадры и зарплата ---
+
+export interface HROrder {
+  id: number
+  number: string
+  kind: 'hire' | 'transfer' | 'salary' | 'dismissal'
+  kind_display: string
+  employee: number
+  employee_name: string
+  date: string
+  from_department_name: string | null
+  to_department_name: string | null
+  from_position_name: string | null
+  to_position_name: string | null
+  from_salary: string | null
+  to_salary: string | null
+  reason: string
+  created_by_name: string | null
+  created_at: string
+}
+
+export interface Absence {
+  id: number
+  employee: number
+  employee_name: string
+  department_name: string
+  kind: 'vacation' | 'sick' | 'business_trip' | 'unpaid'
+  kind_display: string
+  date_from: string
+  date_to: string
+  days: number
+  comment: string
+}
+
+export interface Holiday { id: number; date: string; name: string }
+
+export interface Timesheet {
+  year: number
+  month: number
+  norm_days: number
+  days: { day: number; weekday: number; workday: boolean; holiday: boolean }[]
+  rows: {
+    employee: number
+    full_name: string
+    department_name: string
+    position_name: string
+    cells: string[]
+    worked_days: number
+    vacation_days: number
+    sick_days: number
+    unpaid_days: number
+  }[]
+}
+
+export interface PayrollRate {
+  id: number
+  code: string
+  name: string
+  payer: 'employee' | 'employer'
+  payer_display: string
+  base: 'gross' | 'taxable'
+  base_display: string
+  percent: string
+  account_code: string
+  is_active: boolean
+}
+
+export interface PayrollPeriod {
+  id: number
+  year: number
+  month: number
+  status: 'draft' | 'posted' | 'paid'
+  status_display: string
+  calculated_at: string | null
+  posted_at: string | null
+  paid_at: string | null
+  totals: { employees: number; gross: string; withheld: string; net: string; employer_total: string }
+}
+
+export interface Payslip {
+  id: number
+  period: number
+  period_label: string
+  period_status: PayrollPeriod['status']
+  employee: number
+  employee_name: string
+  department: number
+  department_name: string
+  position_name: string
+  salary: string
+  norm_days: number
+  worked_days: number
+  vacation_days: number
+  sick_days: number
+  unpaid_days: number
+  salary_accrued: string
+  vacation_pay: string
+  sick_pay: string
+  bonus: string
+  gross: string
+  withheld: string
+  net: string
+  employer_total: string
+  lines: { id: number; code: string; name: string; payer: 'employee' | 'employer'; base: string; percent: string; amount: string }[]
 }

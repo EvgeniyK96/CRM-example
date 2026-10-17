@@ -21,7 +21,12 @@ export const NAV: NavItem[] = [
   { key: '/journal', label: 'Журнал операций', roles: ['accountant'], group: 'Бухгалтерия' },
   { key: '/finance', label: 'Финансовые отчёты', roles: ['accountant'], group: 'Бухгалтерия' },
   { key: '/accounts', label: 'План счетов', roles: ['accountant'], group: 'Бухгалтерия' },
+  { key: '/payroll', label: 'Зарплата', roles: ['accountant'], group: 'Бухгалтерия' },
+  { key: '/payroll-rates', label: 'Ставки удержаний', roles: ['accountant', 'hr'], group: 'Бухгалтерия' },
   { key: '/employees', label: 'Сотрудники', roles: ['hr', 'accountant', 'shop_head'], group: 'Кадры' },
+  { key: '/hr-orders', label: 'Кадровые приказы', roles: ['hr', 'accountant'], group: 'Кадры' },
+  { key: '/absences', label: 'Отсутствия', roles: ['hr', 'accountant', 'shop_head'], group: 'Кадры' },
+  { key: '/timesheet', label: 'Табель', roles: ['hr', 'accountant', 'shop_head'], group: 'Кадры' },
   { key: '/references', label: 'Справочники', roles: ['technologist', 'hr'], group: 'Настройки' },
   { key: '/users', label: 'Пользователи', roles: [], group: 'Настройки' },
 ]

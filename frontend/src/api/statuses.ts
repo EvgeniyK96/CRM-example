@@ -68,6 +68,8 @@ export const ENTRY_SOURCE: Record<string, StatusInfo> = {
   write_off: { color: 'red', label: 'Списание' },
   opening: { color: 'default', label: 'Начальные остатки' },
   payment: { color: 'gold', label: 'Платёж' },
+  payroll: { color: 'magenta', label: 'Зарплата' },
+  payroll_payment: { color: 'magenta', label: 'Выплата зарплаты' },
 }
 
 /** Ссылка на документ-основание проводки во фронтенде */
@@ -75,6 +77,27 @@ export const entrySourcePath = (type: string, id: number | null): string | null 
   if (id == null) return null
   const paths: Record<string, string> = {
     receipt: '/receipts', production_start: '/tasks', production_finish: '/tasks', shipment: '/shipments', opening: '/trace',
+    payroll: '/payroll', payroll_payment: '/payroll',
   }
   return paths[type] ? `${paths[type]}/${id}` : null
+}
+
+export const HR_ORDER_KIND: Record<string, StatusInfo> = {
+  hire: { color: 'green', label: 'Приём' },
+  transfer: { color: 'blue', label: 'Перевод' },
+  salary: { color: 'gold', label: 'Изменение оклада' },
+  dismissal: { color: 'red', label: 'Увольнение' },
+}
+
+export const ABSENCE_KIND: Record<string, StatusInfo> = {
+  vacation: { color: 'green', label: 'Ежегодный отпуск' },
+  sick: { color: 'red', label: 'Больничный' },
+  business_trip: { color: 'blue', label: 'Командировка' },
+  unpaid: { color: 'default', label: 'Без содержания' },
+}
+
+export const PAYROLL_STATUS: Record<string, StatusInfo> = {
+  draft: { color: 'blue', label: 'Черновик' },
+  posted: { color: 'gold', label: 'Проведена' },
+  paid: { color: 'green', label: 'Выплачена' },
 }
