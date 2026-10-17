@@ -41,6 +41,6 @@ class Command(BaseCommand):
                     user=user, last_name=last_name, first_name=first_name, hire_date=hire_date,
                     department=Department.objects.get(name=dep), position=Position.objects.get(name=pos),
                 )
-        call_command("seed_production", stdout=self.stdout)  # тянет за собой каталог, рецептуры, закупки, продажи
+        call_command("seed_shipping", stdout=self.stdout)  # тянет за собой каталог, рецептуры, закупки, продажи, производство
         names = ", ".join(u for u, *_ in USERS)
         self.stdout.write(self.style.SUCCESS(f"Готово. Пользователи: {names}; пароль новых — {DEMO_PASSWORD}"))

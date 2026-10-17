@@ -19,7 +19,7 @@ from apps.catalog.models import ItemKind
 from apps.purchasing.models import PurchaseOrder, PurchaseOrderLine
 from apps.recipes.models import Recipe
 from apps.recipes.services import calculate
-from apps.sales.models import SalesOrder, SalesOrderLine
+from apps.sales.models import SalesOrder, SalesOrderLine, ShipmentItem
 from apps.warehouse import services as stock
 from apps.warehouse.models import Lot, MoveKind
 from core.exceptions import DomainError
@@ -320,14 +320,14 @@ def request_purchase(task: ProductionTask, user=None) -> tuple[list[PurchaseOrde
 
 def trace(lot: Lot) -> dict:
     """
-    Для партии продукции — из каких партий сырья она сделана.
+    Для партии продукции — из каких партий сырья она сделана и каким клиентам отгружена.
     Для партии сырья — в какие партии продукции она ушла.
     """
     def lot_info(x: Lot):
         return {"id": x.pk, "number": x.number, "item_name": x.item.name, "unit_code": x.item.unit.code,
                 "date": x.date, "expiry_date": x.expiry_date, "supplier_name": x.supplier.name if x.supplier else None}
 
-    result = {"lot": lot_info(lot), "produced_by": None, "ingredients": [], "used_in": []}
+    result = {"lot": lot_info(lot), "produced_by": None, "ingredients": [], "used_in": [], "shipped_to": []}
 
     task = ProductionTask.objects.filter(output_lot=lot).first()
     if task:
@@ -342,5 +342,13 @@ def trace(lot: Lot) -> dict:
         result["used_in"].append({
             "task": c.task_id, "task_number": c.task.number, "quantity": -c.move.quantity,
             "output_lot": lot_info(c.task.output_lot) if c.task.output_lot else None,
+        })
+
+    for item in ShipmentItem.objects.filter(move__lot=lot).select_related("shipment__order__client", "move"):
+        shipment = item.shipment
+        result["shipped_to"].append({
+            "shipment": shipment.pk, "shipment_number": shipment.number, "date": shipment.date,
+            "order": shipment.order_id, "order_number": shipment.order.number,
+            "client_name": shipment.order.client.name, "quantity": -item.move.quantity,
         })
     return result

@@ -7,7 +7,10 @@ from apps.accounts.models import Role, User
 @pytest.fixture
 def make_client(db):
     def _make(role):
-        user = User.objects.create_user(username=f"u_{role}", password="pass12345", role=role)
+        """Клиент API от имени пользователя с ролью; повторный вызов с той же ролью — тот же пользователь."""
+        user = User.objects.filter(username=f"u_{role}").first() or User.objects.create_user(
+            username=f"u_{role}", password="pass12345", role=role
+        )
         client = APIClient()
         client.force_authenticate(user)
         return client

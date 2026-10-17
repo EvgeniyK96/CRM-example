@@ -113,6 +113,10 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "core.pagination.DefaultPagination",
     "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
+    "DEFAULT_RENDERER_CLASSES": [
+        "core.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ],
 }
 
 SIMPLE_JWT = {

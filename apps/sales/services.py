@@ -13,10 +13,12 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from apps.catalog.models import Item
+from apps.warehouse import services as stock
+from apps.warehouse.models import MoveKind
 from apps.warehouse.services import available_qty
 from core.exceptions import DomainError
 
-from .models import SalesOrder, SalesOrderLine
+from .models import SalesOrder, SalesOrderLine, Shipment, ShipmentItem
 
 Status = SalesOrder.Status
 CENT = Decimal("0.01")
@@ -123,3 +125,32 @@ def cancel(order: SalesOrder) -> SalesOrder:
     order.status = Status.CANCELLED
     order.save(update_fields=["status"])
     return order
+
+
+@transaction.atomic
+def ship(order: SalesOrder, user=None, *, vehicle="", driver="", comment="") -> Shipment:
+    """
+    Отгрузка готового заказа целиком: партии продукции списываются по FEFO (просроченные пропускаются),
+    каждое списание привязывается к строке заказа. Резерв заказа после этого больше не учитывается.
+    """
+    order = _lock(order)
+    if order.status != Status.READY:
+        raise SalesError("Отгрузить можно только заказ, готовый к отгрузке.")
+
+    shipment = Shipment.objects.create(
+        order=order, date=timezone.localdate(), vehicle=vehicle, driver=driver, comment=comment, created_by=user,
+    )
+    reference = f"Отгрузка {shipment.number}, заказ {order.number}"
+    for line in order.lines.select_related("item__unit"):
+        try:
+            taken = stock.consume_fefo(line.item, line.quantity, kind=MoveKind.SHIPMENT, reference=reference, user=user)
+        except stock.InsufficientStock as e:
+            raise SalesError(
+                f"{e} Продукция могла просрочиться или быть списана после подтверждения заказа — "
+                "верните заказ в работу и подтвердите заново."
+            )
+        ShipmentItem.objects.bulk_create(ShipmentItem(shipment=shipment, order_line=line, move=t.move) for t in taken)
+
+    order.status = Status.SHIPPED
+    order.save(update_fields=["status"])
+    return shipment

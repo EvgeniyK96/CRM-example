@@ -11,6 +11,7 @@ export const NAV: NavItem[] = [
   { key: '/items', label: 'Номенклатура', roles: 'all', group: 'Производство' },
   { key: '/recipes', label: 'Рецептуры', roles: ['technologist', 'shop_head', 'accountant'], group: 'Производство' },
   { key: '/stock', label: 'Остатки', roles: 'all', group: 'Склад' },
+  { key: '/shipments', label: 'Отгрузки', roles: ['storekeeper', 'sales', 'accountant'], group: 'Склад' },
   { key: '/moves', label: 'Движения', roles: ['storekeeper', 'accountant', 'shop_head'], group: 'Склад' },
   { key: '/purchase-orders', label: 'Заявки поставщикам', roles: ['storekeeper', 'accountant'], group: 'Закупки' },
   { key: '/receipts', label: 'Приёмки', roles: ['storekeeper', 'accountant'], group: 'Закупки' },

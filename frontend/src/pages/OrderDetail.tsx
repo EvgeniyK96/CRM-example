@@ -4,6 +4,7 @@ import {
   Alert, Button, Card, DatePicker, Descriptions, Form, Input, InputNumber, Popconfirm, Select, Space, Table, Typography,
 } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
+import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { toOptions, useApiAction, useDetail, useList } from '../api/hooks'
@@ -12,6 +13,7 @@ import type { AvailabilityRow, Client, ProductionTask, SalesOrder, SalesOrderLin
 import { useAuth } from '../auth/AuthContext'
 import { useItemLineColumns } from '../components/itemLineColumns'
 import LinesFormList from '../components/LinesFormList'
+import ShipModal from '../components/ShipModal'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty, fromApiDate, toApiDate } from '../utils/format'
 
@@ -22,6 +24,7 @@ export default function OrderDetail() {
   const { can } = useAuth()
   const navigate = useNavigate()
   const { data: order, isLoading } = useDetail<SalesOrder>(URL, id)
+  const [shipping, setShipping] = useState(false)
 
   // Подтверждение и отмена меняют резервы — обновляем все данные
   const action = (name: string, success: string) =>
@@ -38,26 +41,28 @@ export default function OrderDetail() {
   const isSales = can('sales')
   const isNew = order.status === 'new'
   const canReopen = order.status === 'confirmed' || order.status === 'ready'
+  const canShip = order.status === 'ready' && can('storekeeper')
 
   return (
     <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
       <Link to="/orders"><ArrowLeftOutlined /> Все заказы</Link>
       <Card
         title={<>Заказ {order.number} <StatusTag map={SALES_ORDER_STATUS} value={order.status} /></>}
-        extra={isSales && (
+        extra={(isSales || canShip) && (
           <Space wrap>
-            {isNew && (
+            {canShip && <Button type="primary" onClick={() => setShipping(true)}>Отгрузить</Button>}
+            {isSales && isNew && (
               <Popconfirm title="Удалить заказ?" onConfirm={() => remove.mutate()}><Button danger>Удалить</Button></Popconfirm>
             )}
-            {(isNew || canReopen) && (
+            {isSales && (isNew || canReopen) && (
               <Popconfirm title="Отменить заказ? Резервы будут сняты." onConfirm={() => cancel.mutate()}><Button>Отменить</Button></Popconfirm>
             )}
-            {canReopen && (
+            {isSales && canReopen && (
               <Popconfirm title="Вернуть заказ в работу для изменений? Резервы будут сняты." onConfirm={() => reopen.mutate()}>
                 <Button loading={reopen.isPending}>Вернуть в работу</Button>
               </Popconfirm>
             )}
-            {isNew && (
+            {isSales && isNew && (
               <Popconfirm
                 title="Подтвердить заказ?"
                 description="Свободная продукция будет зарезервирована, недостающее уйдёт в производство."
@@ -82,8 +87,12 @@ export default function OrderDetail() {
             children: order.confirmed_at ? `${order.confirmed_by_name ?? '—'}, ${fmtDateTime(order.confirmed_at)}` : '—',
           },
           { label: 'Комментарий', children: order.comment || '—' },
+          ...(order.shipment
+            ? [{ label: 'Накладная', children: <Link to={`/shipments/${order.shipment}`}>{order.shipment_number}</Link> }]
+            : []),
         ]} />
       </Card>
+      <ShipModal order={shipping ? order : null} onClose={() => setShipping(false)} />
 
       {isNew && isSales ? (
         <>

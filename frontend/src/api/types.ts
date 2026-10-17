@@ -263,6 +263,44 @@ export interface SalesOrder {
   created_at: string
   confirmed_by_name: string | null
   confirmed_at: string | null
+  shipment: number | null
+  shipment_number: string | null
+}
+
+export interface ShipmentItem {
+  id: number
+  order_line: number
+  item_name: string
+  unit_code: string
+  lot: number
+  lot_number: string
+  lot_date: string
+  expiry_date: string
+  quantity: string
+  price: string
+  unit_cost: string
+}
+
+export interface Shipment {
+  id: number
+  number: string
+  order: number
+  order_number: string
+  client: number
+  client_name: string
+  client_tax_id: string
+  client_legal_address: string
+  delivery_address: string
+  payment_delay_days: number
+  date: string
+  vehicle: string
+  driver: string
+  comment: string
+  items: ShipmentItem[]
+  total: string
+  cost: string
+  created_by_name: string | null
+  created_at: string
 }
 
 export interface AvailabilityRow {
@@ -366,4 +404,13 @@ export interface LotTrace {
   produced_by: { id: number; number: string; department_name: string; recipe_version: number; finished_at: string } | null
   ingredients: (TraceLot & { quantity: string })[]
   used_in: { task: number; task_number: string; quantity: string; output_lot: TraceLot | null }[]
+  shipped_to: {
+    shipment: number
+    shipment_number: string
+    date: string
+    order: number
+    order_number: string
+    client_name: string
+    quantity: string
+  }[]
 }

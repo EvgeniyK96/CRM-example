@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Client, SalesOrder, SalesOrderLine
+from .models import Client, SalesOrder, SalesOrderLine, Shipment, ShipmentItem
 
 
 @admin.register(Client)
@@ -22,3 +22,17 @@ class SalesOrderAdmin(admin.ModelAdmin):
     list_filter = ("status", "client__kind")
     search_fields = ("number", "client__name")
     inlines = [SalesOrderLineInline]
+
+
+class ShipmentItemInline(admin.TabularInline):
+    model = ShipmentItem
+    extra = 0
+    can_delete = False
+    readonly_fields = ("order_line", "move")
+
+
+@admin.register(Shipment)
+class ShipmentAdmin(admin.ModelAdmin):
+    list_display = ("number", "order", "date", "driver", "created_by")
+    search_fields = ("number", "order__number", "order__client__name")
+    inlines = [ShipmentItemInline]

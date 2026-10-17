@@ -1,6 +1,6 @@
 import django_filters as filters
 
-from .models import Client, SalesOrder
+from .models import Client, SalesOrder, Shipment
 
 
 class SalesOrderFilter(filters.FilterSet):
@@ -16,3 +16,13 @@ class SalesOrderFilter(filters.FilterSet):
 
     def filter_mine(self, qs, name, value):
         return qs.filter(created_by=self.request.user) if value else qs
+
+
+class ShipmentFilter(filters.FilterSet):
+    client = filters.NumberFilter(field_name="order__client")
+    date_from = filters.DateFilter(field_name="date", lookup_expr="gte")
+    date_to = filters.DateFilter(field_name="date", lookup_expr="lte")
+
+    class Meta:
+        model = Shipment
+        fields = ["order"]

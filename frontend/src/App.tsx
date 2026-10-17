@@ -23,6 +23,9 @@ import Receipts from './pages/Receipts'
 import RecipeDetail from './pages/RecipeDetail'
 import Recipes from './pages/Recipes'
 import References from './pages/References'
+import ShipmentDetail from './pages/ShipmentDetail'
+import ShipmentPrint from './pages/ShipmentPrint'
+import Shipments from './pages/Shipments'
 import Stock from './pages/Stock'
 import Suppliers from './pages/Suppliers'
 import TaskDetail from './pages/TaskDetail'
@@ -41,6 +44,13 @@ function Guard({ section, children }: { section: string; children: ReactElement 
   return roles === 'all' || can(...roles) ? children : <Navigate to="/" replace />
 }
 
+/** Страницы без меню (печатные формы) — только для вошедших. */
+function RequireAuth({ children }: { children: ReactElement }) {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  return user ? children : <Navigate to="/login" replace />
+}
+
 export default function App() {
   return (
     <ConfigProvider locale={ruRU}>
@@ -50,6 +60,7 @@ export default function App() {
             <BrowserRouter>
               <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/shipments/:id/print" element={<RequireAuth><ShipmentPrint /></RequireAuth>} />
                 <Route element={<AppLayout />}>
                   <Route index element={<Home />} />
                   <Route path="orders" element={<Guard section="/orders"><Orders /></Guard>} />
@@ -62,6 +73,8 @@ export default function App() {
                   <Route path="recipes" element={<Guard section="/recipes"><Recipes /></Guard>} />
                   <Route path="recipes/:id" element={<Guard section="/recipes"><RecipeDetail /></Guard>} />
                   <Route path="stock" element={<Stock />} />
+                  <Route path="shipments" element={<Guard section="/shipments"><Shipments /></Guard>} />
+                  <Route path="shipments/:id" element={<Guard section="/shipments"><ShipmentDetail /></Guard>} />
                   <Route path="moves" element={<Guard section="/moves"><Moves /></Guard>} />
                   <Route path="purchase-orders" element={<Guard section="/purchase-orders"><PurchaseOrders /></Guard>} />
                   <Route path="purchase-orders/:id" element={<Guard section="/purchase-orders"><PurchaseOrderDetail /></Guard>} />

@@ -4,7 +4,7 @@ from rest_framework import serializers
 from apps.catalog.models import ItemKind
 from core.serializers import LinesWriteMixin, positive
 
-from .models import Client, SalesOrder, SalesOrderLine
+from .models import Client, SalesOrder, SalesOrderLine, Shipment, ShipmentItem
 from .services import list_price
 
 
@@ -67,6 +67,8 @@ class SalesOrderSerializer(LinesWriteMixin, serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
     created_by_name = serializers.CharField(source="created_by.username", read_only=True, default=None)
     confirmed_by_name = serializers.CharField(source="confirmed_by.username", read_only=True, default=None)
+    shipment = serializers.SerializerMethodField()
+    shipment_number = serializers.SerializerMethodField()
     total = serializers.SerializerMethodField()
 
     class Meta:
@@ -74,9 +76,17 @@ class SalesOrderSerializer(LinesWriteMixin, serializers.ModelSerializer):
         fields = (
             "id", "number", "client", "client_name", "client_kind", "status", "status_display", "delivery_date",
             "delivery_address", "discount_percent", "comment", "lines", "total", "created_by_name", "created_at",
-            "confirmed_by_name", "confirmed_at",
+            "confirmed_by_name", "confirmed_at", "shipment", "shipment_number",
         )
         read_only_fields = ("status", "confirmed_at")
+
+    def get_shipment(self, order):
+        shipment = getattr(order, "shipment", None)  # обратная связь OneToOne: нет отгрузки — None
+        return shipment.pk if shipment else None
+
+    def get_shipment_number(self, order):
+        shipment = getattr(order, "shipment", None)
+        return shipment.number if shipment else None
 
     def get_total(self, order):
         return f"{sum((line.amount for line in order.lines.all()), 0):.2f}"
@@ -107,3 +117,60 @@ class SalesOrderSerializer(LinesWriteMixin, serializers.ModelSerializer):
             if line.get("price") is None:
                 line["price"] = list_price(line["item"], order.discount_percent)
         super()._save_lines(order, lines)
+
+
+class ShipmentItemSerializer(serializers.ModelSerializer):
+    order_line = serializers.IntegerField(source="order_line_id", read_only=True)
+    item_name = serializers.CharField(source="order_line.item.name", read_only=True)
+    unit_code = serializers.CharField(source="order_line.item.unit.code", read_only=True)
+    lot = serializers.IntegerField(source="move.lot_id", read_only=True)
+    lot_number = serializers.CharField(source="move.lot.number", read_only=True)
+    lot_date = serializers.DateField(source="move.lot.date", read_only=True)
+    expiry_date = serializers.DateField(source="move.lot.expiry_date", read_only=True)
+    price = serializers.DecimalField(source="order_line.price", max_digits=12, decimal_places=2, read_only=True)
+    unit_cost = serializers.DecimalField(source="move.lot.unit_cost", max_digits=12, decimal_places=2, read_only=True)
+    quantity = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ShipmentItem
+        fields = ("id", "order_line", "item_name", "unit_code", "lot", "lot_number", "lot_date", "expiry_date",
+                  "quantity", "price", "unit_cost")
+
+    def get_quantity(self, item):
+        return f"{-item.move.quantity:.3f}"
+
+
+class ShipmentSerializer(serializers.ModelSerializer):
+    order_number = serializers.CharField(source="order.number", read_only=True)
+    client = serializers.IntegerField(source="order.client_id", read_only=True)
+    client_name = serializers.CharField(source="order.client.name", read_only=True)
+    client_tax_id = serializers.CharField(source="order.client.tax_id", read_only=True)
+    client_legal_address = serializers.CharField(source="order.client.legal_address", read_only=True)
+    delivery_address = serializers.CharField(source="order.delivery_address", read_only=True)
+    payment_delay_days = serializers.IntegerField(source="order.client.payment_delay_days", read_only=True)
+    created_by_name = serializers.CharField(source="created_by.username", read_only=True, default=None)
+    items = ShipmentItemSerializer(many=True, read_only=True)
+    total = serializers.SerializerMethodField()
+    cost = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Shipment
+        fields = (
+            "id", "number", "order", "order_number", "client", "client_name", "client_tax_id", "client_legal_address",
+            "delivery_address", "payment_delay_days", "date", "vehicle", "driver", "comment", "items", "total", "cost",
+            "created_by_name", "created_at",
+        )
+
+    def get_total(self, shipment):
+        """Выручка: количество × цена строки заказа."""
+        return f"{sum((-i.move.quantity * i.order_line.price for i in shipment.items.all()), 0):.2f}"
+
+    def get_cost(self, shipment):
+        """Себестоимость отгруженного: количество × себестоимость партии."""
+        return f"{sum((-i.move.quantity * i.move.lot.unit_cost for i in shipment.items.all()), 0):.2f}"
+
+
+class ShipSerializer(serializers.Serializer):
+    vehicle = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
+    driver = serializers.CharField(max_length=120, required=False, allow_blank=True, default="")
+    comment = serializers.CharField(required=False, allow_blank=True, default="")

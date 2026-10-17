@@ -115,3 +115,45 @@ class SalesOrderLine(models.Model):
     @property
     def amount(self):
         return self.quantity * self.price
+
+
+class Shipment(models.Model):
+    """Отгрузка заказа клиенту (расходная накладная). Создаётся сразу проведённой."""
+
+    number = models.CharField("Номер", max_length=20, unique=True, null=True, blank=True, editable=False)
+    order = models.OneToOneField(SalesOrder, verbose_name="Заказ", on_delete=models.PROTECT, related_name="shipment")
+    date = models.DateField("Дата отгрузки")
+    vehicle = models.CharField("Транспорт", max_length=100, blank=True)
+    driver = models.CharField("Водитель", max_length=120, blank=True)
+    comment = models.TextField("Комментарий", blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name="Отгрузил", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    created_at = models.DateTimeField("Создана", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Отгрузка"
+        verbose_name_plural = "Отгрузки"
+        ordering = ["-date", "-pk"]
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        assign_number(self, "ОТ")
+
+    def __str__(self):
+        return self.number or "Отгрузка"
+
+
+class ShipmentItem(models.Model):
+    """Списание конкретной партии под строку заказа — прослеживаемость «партия → клиент»."""
+
+    shipment = models.ForeignKey(Shipment, verbose_name="Отгрузка", on_delete=models.CASCADE, related_name="items")
+    order_line = models.ForeignKey(SalesOrderLine, verbose_name="Строка заказа", on_delete=models.PROTECT, related_name="+")
+    move = models.OneToOneField(
+        "warehouse.StockMove", verbose_name="Движение", on_delete=models.PROTECT, related_name="shipment_item"
+    )
+
+    class Meta:
+        verbose_name = "Строка отгрузки"
+        verbose_name_plural = "Строки отгрузки"

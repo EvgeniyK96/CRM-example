@@ -57,7 +57,19 @@ export default function Trace() {
         </Card>
       )}
 
-      {!task && data.used_in.length === 0 && (
+      {data.shipped_to.length > 0 && (
+        <Card size="small" title="Отгружена клиентам">
+          <Table rowKey={(r) => `${r.shipment}-${r.quantity}`} size="small" pagination={false} dataSource={data.shipped_to} columns={[
+            { title: 'Накладная', render: (_, r) => <Link to={`/shipments/${r.shipment}`}>{r.shipment_number}</Link> },
+            { title: 'Дата', dataIndex: 'date', render: fmtDate },
+            { title: 'Клиент', dataIndex: 'client_name' },
+            { title: 'Заказ', render: (_, r) => <Link to={`/orders/${r.order}`}>{r.order_number}</Link> },
+            { title: 'Количество', align: 'right', render: (_, r) => fmtQty(r.quantity, lot.unit_code) },
+          ]} />
+        </Card>
+      )}
+
+      {!task && data.used_in.length === 0 && data.shipped_to.length === 0 && (
         <Card><Empty description="Партия ещё не участвовала в производстве" /></Card>
       )}
     </Space>
