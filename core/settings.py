@@ -152,3 +152,12 @@ SWAGGER_SETTINGS = {
 # Зарплата (учебные значения): стандартный вычет при расчёте ИПН и среднее число календарных дней в месяце
 PAYROLL_STANDARD_DEDUCTION = Decimal(env.str("PAYROLL_STANDARD_DEDUCTION", default="60550"))  # ≈ 14 МРП
 PAYROLL_AVG_MONTH_DAYS = Decimal(env.str("PAYROLL_AVG_MONTH_DAYS", default="29.3"))
+
+# Админка (тема Jazzmin)
+JAZZMIN_SETTINGS = {
+    "site_title": "CRM Фабрика",
+    "site_header": "CRM Фабрика",
+    "site_brand": "CRM Фабрика",
+    "welcome_sign": "Администрирование CRM кондитерской фабрики",
+    "copyright": "Учебный проект",
+}

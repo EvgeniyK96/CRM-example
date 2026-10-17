@@ -1,4 +1,5 @@
-import { Button, Layout, Menu, Result, Typography } from 'antd'
+import { Button, Layout, Menu, Result, Spin, Typography } from 'antd'
+import { Suspense } from 'react'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { NAV } from './nav'
@@ -43,7 +44,10 @@ export default function AppLayout() {
           <span>{user.username} · {user.role_display}</span>
           <Button onClick={logout}>Выйти</Button>
         </Layout.Header>
-        <Layout.Content style={{ padding: 24 }}><Outlet /></Layout.Content>
+        <Layout.Content style={{ padding: 24 }}>
+          {/* Страницы грузятся лениво: меню остаётся на месте, пока подгружается чанк */}
+          <Suspense fallback={<Spin style={{ display: 'block', marginTop: 48 }} />}><Outlet /></Suspense>
+        </Layout.Content>
       </Layout>
     </Layout>
   )

@@ -1,433 +1,170 @@
-# Django DRF Starter
+# CRM кондитерской фабрики
 
-[![CI](https://github.com/marse11e/django-project-template-v2/actions/workflows/ci.yml/badge.svg)](https://github.com/marse11e/django-project-template-v2/actions/workflows/ci.yml)
+[![CI](https://github.com/EvgeniyK96/CRM-example/actions/workflows/ci.yml/badge.svg)](https://github.com/EvgeniyK96/CRM-example/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/django-5.x-green.svg)](https://www.djangoproject.com/)
+[![Django](https://img.shields.io/badge/django-6.1-green.svg)](https://www.djangoproject.com/)
+[![React](https://img.shields.io/badge/react-19-61dafb.svg)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-Шаблон для быстрого старта Django + DRF проекта. Из коробки — JWT-аутентификация, Swagger-документация, красивая админка и полная настройка через `.env`. Никаких захардкоженных секретов и настроек в коде.
+Учебная CRM/ERP для кондитерской фабрики с четырьмя цехами (торты и пирожные, пряничный, вафельный, сдобный):
+от закупки сырья и рецептур до производства, отгрузки клиентам, бухгалтерии и зарплаты.
+
+> **Учебный проект, не для продакшена.** Налоги, взносы и план счетов упрощены по образцу РК и не являются
+> юридически точной моделью. Пароли демо-пользователей общеизвестны.
 
 ---
 
 ## Содержание
 
+- [Что умеет](#что-умеет)
 - [Стек](#стек)
 - [Быстрый старт](#быстрый-старт)
-- [Переменные окружения](#переменные-окружения)
-- [База данных](#база-данных)
-- [Docker](#docker)
-- [Аутентификация](#аутентификация)
-- [API-документация](#api-документация)
-- [Создание нового приложения](#создание-нового-приложения)
+- [Демо-пользователи](#демо-пользователи)
+- [Сквозной сценарий](#сквозной-сценарий)
+- [Документация](#документация)
 - [Структура проекта](#структура-проекта)
 - [Тесты и CI](#тесты-и-ci)
-- [Деплой](#деплой)
-- [Лицензия](#лицензия)
+- [Настройка и запуск в Docker](#настройка-и-запуск-в-docker)
 
 ---
+
+## Что умеет
+
+| Модуль | Возможности |
+|---|---|
+| **Каталог и рецептуры** | Номенклатура сырья и продукции, единицы (делимые и штучные), поставщики. Рецептуры с версиями «черновик → активна → архив», калькулятор потребности в сырье с учётом потерь |
+| **Склад** | Учёт по партиям со сроком годности и себестоимостью. Остаток = сумма движений. Расход по **FEFO**, просроченное не используется. Списание брака, журнал движений |
+| **Закупки** | Заявки поставщикам, приёмки (в т. ч. по заявке на неполученный остаток), срок годности по нормативу |
+| **Продажи** | Клиенты (опт, магазины, фирменные магазины) со скидкой и отсрочкой. Заказы: проверка наличия **на дату отгрузки** с учётом резервов других заказов, резервирование, «к производству» |
+| **Производство** | Задания из потребности заказов, запуск со списанием сырья (FEFO, всё или ничего), выпуск партии с себестоимостью, брак, распределение выпуска по заказам. Заявка поставщику на нехватку. Начальник цеха управляет только своим цехом |
+| **Отгрузка** | Отгрузка готового заказа по FEFO, расходная накладная с партиями и сроками годности, печатная форма |
+| **Прослеживаемость** | Поставщик → партия сырья → задание → партия продукции → накладная → клиент, в обе стороны |
+| **Бухгалтерия** | План счетов, автопроводки по событиям (приёмка, производство, отгрузка, списание, платежи), счета покупателям, разнесение оплат и авансы, ОСВ, карточка счёта, дебиторка, кредиторка, прибыли и убытки |
+| **Кадры и зарплата** | Кадровые приказы с историей, отсутствия, производственный календарь, табель. Ведомость по табелю: оклад, отпускные, больничные, премии, удержания и взносы по настраиваемым ставкам, проводки, выплата, расчётные листки |
+| **Аналитика** | Дашборд по ролям (KPI, выручка по дням, продукты, загрузка цехов, брак, дефицит сырья, сроки годности), отчёты с выгрузкой в CSV |
+
+Семь ролей: администратор, менеджер по продажам, отдел кадров, бухгалтерия, технолог, начальник цеха, кладовщик.
+Права проверяются на сервере; интерфейс показывает каждой роли только её разделы.
 
 ## Стек
 
-| Пакет | Назначение |
+| Слой | Технологии |
 |---|---|
-| [Django](https://www.djangoproject.com/) | Основной фреймворк |
-| [Django REST Framework](https://www.django-rest-framework.org/) | REST API |
-| [djoser](https://djoser.readthedocs.io/) | Готовые эндпоинты аутентификации |
-| [djangorestframework-simplejwt](https://django-rest-framework-simplejwt.readthedocs.io/) | JWT-токены |
-| [drf-yasg](https://drf-yasg.readthedocs.io/) | Swagger / ReDoc документация |
-| [django-environ](https://django-environ.readthedocs.io/) | Чтение настроек из `.env` |
-| [django-jazzmin](https://django-jazzmin.readthedocs.io/) | Тема для Django Admin |
-| [Pillow](https://pillow.readthedocs.io/) | Работа с изображениями |
-| [psycopg2-binary](https://www.psycopg.org/) | Драйвер PostgreSQL |
-
----
+| Бэкенд | Python 3.12, Django 6.1, Django REST Framework, djoser + SimpleJWT, django-filter, drf-yasg (Swagger) |
+| База данных | SQLite для разработки, PostgreSQL через `DATABASE_URL` |
+| Фронтенд | React 19, TypeScript, Vite, Ant Design 6, TanStack Query, React Router, recharts |
+| Качество | pytest + pytest-django, ruff, oxlint, GitHub Actions |
 
 ## Быстрый старт
 
-### Локально (без Docker)
+Нужны Python 3.12 и Node.js 22.
 
 ```bash
-# 1. Создать папку проекта и клонировать шаблон
-mkdir my-project
-cd my-project
-git clone https://github.com/marse11e/django-project-template-v2 .
+git clone https://github.com/EvgeniyK96/CRM-example.git
+cd CRM-example
 
-# 2. Создать и активировать виртуальное окружение
-python -m venv .venv
-source .venv/bin/activate      # Linux / macOS
-.venv\Scripts\activate         # Windows
-
-# 3. Установить зависимости
-pip install -r requirements.txt
-
-# 4. Настроить переменные окружения
-cp .env.example .env
-# Открой .env и при необходимости измени значения
-
-# 5. Применить миграции
+# Бэкенд
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+cp .env.example .env            # для разработки подходит как есть
 python manage.py migrate
+python manage.py seed_demo      # пользователи, справочники и сквозной набор данных
+python manage.py runserver      # http://127.0.0.1:8000  (Swagger: /swagger/, админка: /admin/)
 
-# 6. Запустить сервер
-python manage.py runserver
+# Фронтенд (во втором терминале)
+cd frontend
+npm ci
+npm run dev                     # http://localhost:5173
 ```
 
-Проект доступен на [http://127.0.0.1:8000](http://127.0.0.1:8000).
+Фронтенд проксирует `/api` на `127.0.0.1:8000` (см. `frontend/vite.config.ts`), поэтому CORS при разработке не нужен.
 
-### Через Docker
+`seed_demo` можно запускать повторно — существующие данные не дублируются. Чтобы начать с чистого листа,
+удалите `db.sqlite3` и повторите `migrate` и `seed_demo`.
 
-```bash
-mkdir my-project
-cd my-project
-git clone https://github.com/marse11e/django-project-template-v2 .
-cp .env.example .env
-docker compose up --build
-```
+## Демо-пользователи
 
-Проект доступен на [http://localhost:8000](http://localhost:8000). PostgreSQL и миграции поднимаются автоматически.
+Пароль у всех — **`demo12345`** (только у созданных командой `seed_demo`; существующие пользователи не меняются).
 
----
-
-## Переменные окружения
-
-Все настройки проекта задаются через файл `.env`. Шаблон со всеми переменными находится в `.env.example`.
-
-```bash
-cp .env.example .env
-```
-
-### Полный список переменных
-
-| Переменная | По умолчанию | Обязательно менять перед продом | Описание |
-|---|---|---|---|
-| `SECRET_KEY` | *(задан в .env.example)* | **Да** | Секретный ключ Django. Генерируй новый для каждого проекта. |
-| `DEBUG` | `True` | **Да** | Режим отладки. В продакшне всегда `False`. |
-| `ALLOWED_HOSTS` | `127.0.0.1,localhost` | **Да** | Разрешённые хосты через запятую. В продакшне — реальный домен. |
-| `DATABASE_URL` | *(не задан → SQLite)* | Нет | URL подключения к БД. Не задан — используется SQLite. |
-| `STATIC_ROOT` | `staticfiles` | Нет | Папка для `collectstatic`. |
-| `MEDIA_ROOT` | `media` | Нет | Папка для загружаемых файлов. |
-| `LANGUAGE_CODE` | `ru` | Нет | Язык интерфейса Django. |
-| `TIME_ZONE` | `Asia/Almaty` | Нет | Часовой пояс. |
-| `POSTGRES_DB` | `django_db` | Нет | Имя БД (только для Docker). |
-| `POSTGRES_USER` | `django_user` | Нет | Пользователь БД (только для Docker). |
-| `POSTGRES_PASSWORD` | `django_pass` | Нет | Пароль БД (только для Docker). |
-
-### Генерация нового SECRET_KEY
-
-```bash
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
-
-Вставь результат в `.env`:
-
-```dotenv
-SECRET_KEY=полученная-строка
-```
-
----
-
-## База данных
-
-### SQLite (по умолчанию)
-
-Никакой настройки не нужно. После `python manage.py migrate` в корне проекта создастся файл `db.sqlite3`. Подходит для локальной разработки.
-
-### PostgreSQL
-
-Достаточно одной строки в `.env`:
-
-```dotenv
-DATABASE_URL=postgres://user:password@localhost:5432/dbname
-```
-
-После этого запусти миграции:
-
-```bash
-python manage.py migrate
-```
-
-Никаких правок кода не требуется — переключение полностью через переменную окружения.
-
----
-
-## Docker
-
-Проект поставляется с готовым `Dockerfile` и `docker-compose.yml`.
-
-### Запуск (Django + PostgreSQL)
-
-```bash
-cp .env.example .env
-docker compose up --build
-```
-
-Что происходит при запуске:
-1. Собирается образ Django-приложения на базе `python:3.12-slim`.
-2. Поднимается контейнер PostgreSQL 17 с проверкой готовности (healthcheck).
-3. После того как БД готова — автоматически накатываются миграции.
-4. Запускается `runserver` на порту `8000`.
-
-### Полезные команды
-
-```bash
-# Запуск в фоне
-docker compose up -d --build
-
-# Остановка
-docker compose down
-
-# Остановка с удалением данных БД
-docker compose down -v
-
-# Логи
-docker compose logs -f web
-
-# Выполнить команду внутри контейнера
-docker compose exec web python manage.py createsuperuser
-docker compose exec web python manage.py migrate
-docker compose exec web python manage.py shell
-```
-
-### Только сборка образа
-
-```bash
-docker build -t django-drf-starter .
-```
-
----
-
-## Аутентификация
-
-Аутентификация реализована через `djoser` + `djangorestframework-simplejwt`. Все запросы к защищённым эндпоинтам требуют заголовок `Authorization: Bearer <access_token>`.
-
-### Создать суперпользователя
-
-```bash
-python manage.py createsuperuser
-```
-
-### Получить токен
-
-```bash
-curl -X POST http://127.0.0.1:8000/api/auth/jwt/create/ \
-  -H "Content-Type: application/json" \
-  -d '{"username": "your_user", "password": "your_password"}'
-```
-
-Ответ:
-
-```json
-{
-  "access": "<access_token>",
-  "refresh": "<refresh_token>"
-}
-```
-
-- **access** — короткоживущий токен для запросов к API.
-- **refresh** — долгоживущий токен для получения нового access-токена.
-
-### Обновить access-токен
-
-```bash
-curl -X POST http://127.0.0.1:8000/api/auth/jwt/refresh/ \
-  -H "Content-Type: application/json" \
-  -d '{"refresh": "<refresh_token>"}'
-```
-
-### Проверить токен
-
-```bash
-curl -X POST http://127.0.0.1:8000/api/auth/jwt/verify/ \
-  -H "Content-Type: application/json" \
-  -d '{"token": "<access_token>"}'
-```
-
-### Использовать токен в запросах
-
-```bash
-curl http://127.0.0.1:8000/api/some-endpoint/ \
-  -H "Authorization: Bearer <access_token>"
-```
-
-### Все эндпоинты аутентификации
-
-| Метод | URL | Описание |
+| Логин | Роль | С чего начать |
 |---|---|---|
-| `POST` | `/api/auth/users/` | Регистрация нового пользователя |
-| `GET` | `/api/auth/users/me/` | Данные текущего пользователя |
-| `POST` | `/api/auth/jwt/create/` | Получить access + refresh токены |
-| `POST` | `/api/auth/jwt/refresh/` | Обновить access-токен |
-| `POST` | `/api/auth/jwt/verify/` | Проверить токен |
-| `POST` | `/api/auth/users/set_password/` | Изменить пароль |
+| `admin` | Администратор | Видит всё; пользователи и роли — «Настройки → Пользователи» |
+| `sales` | Менеджер по продажам | «Заказы клиентов»: создать заказ, проверить наличие, подтвердить |
+| `shop_head` | Начальник производства | «Задания»: сформировать задания из потребности заказов (все цеха) |
+| `shop_cakes` | Начальник цеха тортов | Запустить и завершить задание своего цеха |
+| `shop_ginger` | Начальник пряничного цеха | То же — только пряничный цех |
+| `storekeeper` | Кладовщик | «Отгрузки», «Остатки», «Приёмки», «Заявки поставщикам» |
+| `tech` | Технолог | «Рецептуры»: новая версия, калькулятор сырья |
+| `accountant` | Бухгалтерия | «Счета покупателям», «Платежи», «Журнал операций», «Финансовые отчёты», «Зарплата» |
+| `hr` | Отдел кадров | «Сотрудники», «Кадровые приказы», «Отсутствия», «Табель» |
 
----
+Главная страница каждой роли — свой дашборд; сотрудник с учётной записью видит там и свой расчётный листок.
 
-## API-документация
+## Сквозной сценарий
 
-Swagger и ReDoc доступны сразу после запуска сервера — без дополнительной настройки.
+Коротко: **заказ → потребность → задание → списание сырья → выпуск → отгрузка → счёт → оплата → проводки**.
+Пошаговый сценарий для демонстрации с ожидаемыми результатами — в [docs/SCENARIO.md](docs/SCENARIO.md).
 
-| Интерфейс | URL |
+## Документация
+
+| Документ | Что внутри |
 |---|---|
-| Swagger UI | [http://127.0.0.1:8000/swagger/](http://127.0.0.1:8000/swagger/) |
-| ReDoc | [http://127.0.0.1:8000/redoc/](http://127.0.0.1:8000/redoc/) |
-
-Swagger поддерживает авторизацию по JWT: нажми кнопку **Authorize** и введи токен в формате `Bearer <access_token>`.
-
----
-
-## Создание нового приложения
-
-Для создания нового Django-приложения используй скрипт `create_app.py`. Он работает одинаково на Linux, macOS и Windows.
-
-```bash
-python create_app.py <name>
-```
-
-**Пример:**
-
-```bash
-python create_app.py blog
-```
-
-Скрипт автоматически:
-
-1. Проверит, что имя — валидный Python-идентификатор в нижнем регистре (не зарезервированное слово).
-2. Проверит, что папка `apps/blog/` ещё не существует — если существует, завершится без изменений.
-3. Создаст приложение в `apps/blog/` через `manage.py startapp`.
-4. Исправит `name` в `apps/blog/apps.py` с `"blog"` на `"apps.blog"`.
-5. Создаст заглушки `apps/blog/urls.py` и `apps/blog/serializers.py` с примерами кода.
-6. Добавит `"apps.blog"` в `INSTALLED_APPS` в `core/settings.py`.
-
-После создания подключи маршруты приложения в `core/urls.py`:
-
-```python
-from django.urls import include, path
-
-urlpatterns = [
-    ...
-    path("api/blog/", include("apps.blog.urls")),
-]
-```
-
-### Структура созданного приложения
-
-```
-apps/blog/
-├── migrations/
-│   └── __init__.py
-├── __init__.py
-├── admin.py
-├── apps.py
-├── models.py
-├── serializers.py   # заглушка с примером ModelSerializer
-├── tests.py
-├── urls.py          # заглушка с примером роута
-└── views.py
-```
-
----
+| [docs/SCENARIO.md](docs/SCENARIO.md) | Сценарий демонстрации по ролям |
+| [docs/ER.md](docs/ER.md) | ER-диаграммы по доменам (Mermaid, генерируются из моделей: `python manage.py er_diagram --output docs/ER.md`) |
+| [docs/PLAN.md](docs/PLAN.md) | План проекта, статус этапов и архитектурные соглашения |
+| `/swagger/`, `/redoc/` | Документация API (на запущенном сервере) |
 
 ## Структура проекта
 
 ```
-my-project/
-├── .github/
-│   └── workflows/
-│       └── ci.yml            # GitHub Actions: lint → check → migrate → test
-├── apps/                     # Пользовательские Django-приложения
-│   └── __init__.py
-├── core/                     # Конфигурация проекта
-│   ├── __init__.py
-│   ├── settings.py           # Все настройки через django-environ из .env
-│   ├── urls.py               # Корневой роутер (admin, auth, swagger)
-│   ├── asgi.py               # ASGI-точка входа
-│   └── wsgi.py               # WSGI-точка входа
-├── tests/
-│   └── test_smoke.py         # Smoke-тесты: swagger, redoc, jwt, admin
-├── .dockerignore             # Исключения для Docker-сборки
-├── .env.example              # Шаблон переменных окружения
-├── .gitignore
-├── create_app.py             # Скрипт создания нового приложения
-├── docker-compose.yml        # Django + PostgreSQL через Docker
-├── Dockerfile                # Образ приложения на python:3.12-slim
-├── manage.py
-├── pyproject.toml            # Конфиг ruff и pytest
-├── requirements.txt          # Prod-зависимости
-├── requirements-dev.txt      # Dev-зависимости (ruff, pytest, pytest-django)
-├── LICENSE
-└── README.md
+core/                 настройки, общие утилиты: DomainError, нумерация документов, миксины, JSON-рендерер
+apps/
+  accounts/           пользователи и роли, права (HasRole, RoleAccess), seed_demo
+  hr/                 подразделения, должности, сотрудники, приказы, отсутствия, календарь, табель
+  catalog/            единицы, категории, номенклатура, поставщики
+  recipes/            рецептуры с версиями
+  warehouse/          партии, движения, FEFO, списание
+  purchasing/         заявки поставщикам, приёмки
+  sales/              клиенты, заказы, резервирование, отгрузки
+  production/         задания, распределение по заказам, списание сырья, выпуск, прослеживаемость
+  accounting/         план счетов, проводки (подписка на сигналы модулей), счета, платежи, отчёты
+  payroll/            ставки, ведомости, расчётные листки
+  reports/            дашборд и аналитика (только чтение), генератор ER-диаграмм
+frontend/src/
+  api/                клиент axios (JWT с обновлением), хуки запросов, типы, статусы
+  components/         общие компоненты: CrudPage, DocumentList, LinesFormList, графики
+  pages/              страницы разделов
+tests/                pytest: по файлу на модуль + сквозные проверки демо-данных
+docs/                 документация
 ```
 
----
+Бизнес-логика каждого модуля — в `services.py`; вьюхи только вызывают сервисы. Ошибка бизнес-правила —
+`DomainError`, API отвечает на неё 400 с понятным текстом. Подробнее — раздел «Архитектурные соглашения» в [docs/PLAN.md](docs/PLAN.md).
 
 ## Тесты и CI
 
-### Установить dev-зависимости
-
 ```bash
-pip install -r requirements-dev.txt
+pytest                       # тесты бэкенда
+ruff check .                 # линтер Python
+cd frontend && npx tsc -b && npm run lint && npm run build
 ```
 
-### Запустить тесты
+GitHub Actions на каждый push в `master` проверяет бэкенд (ruff, `manage.py check`, актуальность миграций,
+загрузку демо-данных, тесты) и фронтенд (типы, линтер, сборка).
 
-```bash
-pytest
-```
+## Настройка и запуск в Docker
 
-### Запустить линтер
+Все настройки — в `.env` (образец с комментариями — `.env.example`): `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`,
+`DATABASE_URL` (по умолчанию SQLite), `CORS_ALLOWED_ORIGINS`, учебные параметры зарплаты.
 
-```bash
-ruff check .
-```
+PostgreSQL вместо SQLite: `DATABASE_URL=postgres://user:password@localhost:5432/dbname`.
 
-### Автоисправление ошибок линтера
+`docker compose up --build` поднимает бэкенд с PostgreSQL на `http://localhost:8000` (миграции применяются
+при старте). Демо-данные: `docker compose exec web python manage.py seed_demo`. Фронтенд запускается отдельно
+(`npm run dev`) — он проксирует API на порт 8000.
 
-```bash
-ruff check --fix .
-```
-
-### Проверить конфигурацию Django
-
-```bash
-python manage.py check
-```
-
-### CI (GitHub Actions)
-
-При каждом `push` и `pull_request` в ветку `main` автоматически выполняется:
-
-1. Установка зависимостей из `requirements-dev.txt`.
-2. `ruff check .` — проверка стиля кода.
-3. `python manage.py check` — проверка конфигурации Django.
-4. `python manage.py migrate` — применение миграций.
-5. `pytest` — запуск тестов.
-
-CI работает на SQLite без внешних сервисов — зелёный сразу после клонирования.
-
----
-
-## Деплой
-
-Перед деплоем на продакшн-сервер обязательно:
-
-1. **Сгенерируй новый `SECRET_KEY`** и задай его в `.env`.
-2. **Выставь `DEBUG=False`** — иначе Django отдаёт отладочные страницы с деталями ошибок.
-3. **Укажи реальный домен в `ALLOWED_HOSTS`**, например: `ALLOWED_HOSTS=example.com,www.example.com`.
-4. **Переключись на PostgreSQL** через `DATABASE_URL`.
-5. **Собери статику:**
-
-```bash
-python manage.py collectstatic --noinput
-```
-
-6. **Настрой раздачу статики и медиа** через Nginx или облачное хранилище (S3 и т.п.) — `runserver` не подходит для продакшна.
-7. **Используй Gunicorn или uWSGI** вместо `runserver`:
-
-```bash
-pip install gunicorn
-gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 4
-```
-
----
+Новое Django-приложение: `python create_app.py <имя>` — создаёт его в `apps/` и регистрирует в `INSTALLED_APPS`.
 
 ## Лицензия
 

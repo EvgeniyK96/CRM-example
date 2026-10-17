@@ -1,11 +1,12 @@
-Django
-djangorestframework
-djangorestframework-simplejwt
-djoser
-drf-yasg
-django-environ
-django-jazzmin
-Pillow
-psycopg2-binary
-django-cors-headers
-django-filter
+# Версии зафиксированы для воспроизводимости (проверено на Python 3.12)
+Django~=6.1.2
+djangorestframework~=3.18.3
+djangorestframework-simplejwt~=5.5.1
+djoser~=2.3.5
+drf-yasg~=1.21.18
+django-environ~=0.14.0
+django-jazzmin~=3.0.5
+django-cors-headers~=4.9.0
+django-filter~=26.2
+Pillow~=12.3.0
+psycopg2-binary~=2.9.13
