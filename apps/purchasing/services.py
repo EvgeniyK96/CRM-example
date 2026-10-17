@@ -10,6 +10,7 @@ from apps.warehouse import services as stock
 from apps.warehouse.models import MoveKind
 from core.exceptions import DomainError
 
+from . import signals
 from .models import PurchaseOrder, PurchaseOrderLine, Receipt, ReceiptLine
 
 Status = PurchaseOrder.Status
@@ -115,4 +116,5 @@ def post_receipt(receipt: Receipt, user=None) -> Receipt:
 
     if receipt.order:
         refresh_order_status(_lock(PurchaseOrder, receipt.order))
+    signals.receipt_posted.send(sender=Receipt, receipt=receipt)
     return receipt

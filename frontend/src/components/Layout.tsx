@@ -1,14 +1,20 @@
-import { Button, Layout, Menu, Typography } from 'antd'
+import { Button, Layout, Menu, Result, Typography } from 'antd'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { NAV } from './nav'
 
 export default function AppLayout() {
-  const { user, loading, logout, can } = useAuth()
+  const { user, loading, unavailable, retry, logout, can } = useAuth()
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
   if (loading) return null
+  if (unavailable) {
+    return (
+      <Result status="warning" title="Сервер недоступен" subTitle="Возможно, он перезапускается. Сессия сохранена."
+        extra={<Button type="primary" onClick={retry}>Повторить</Button>} />
+    )
+  }
   if (!user) return <Navigate to="/login" replace />
 
   // Пункты без группы — сверху; остальные собираются в группы в порядке появления

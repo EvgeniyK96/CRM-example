@@ -24,6 +24,7 @@ from apps.warehouse import services as stock
 from apps.warehouse.models import Lot, MoveKind
 from core.exceptions import DomainError
 
+from . import signals
 from .models import ProductionTask, TaskAllocation, TaskConsumption
 
 Status = ProductionTask.Status
@@ -197,6 +198,7 @@ def start(task: ProductionTask, user=None) -> ProductionTask:
     task.started_by = user
     task.started_at = timezone.now()
     task.save(update_fields=["status", "started_by", "started_at"])
+    signals.task_started.send(sender=ProductionTask, task=task)
     return task
 
 
@@ -262,6 +264,7 @@ def finish(task: ProductionTask, actual_qty: Decimal, defect_qty: Decimal = Deci
 
     for order in SalesOrder.objects.filter(lines__allocations__task=task).distinct():
         refresh_order_status(order)
+    signals.task_finished.send(sender=ProductionTask, task=task)
     return task
 
 

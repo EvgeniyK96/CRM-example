@@ -414,3 +414,136 @@ export interface LotTrace {
     quantity: string
   }[]
 }
+
+// --- Бухгалтерия ---
+
+export type AccountType = 'asset' | 'liability' | 'equity' | 'income' | 'expense'
+
+export interface Account { id: number; code: string; name: string; type: AccountType; type_display: string; is_active: boolean }
+
+export interface Posting {
+  id: number
+  debit: number
+  debit_code: string
+  credit: number
+  credit_code: string
+  amount: string
+  client: number | null
+  client_name: string | null
+  supplier: number | null
+  supplier_name: string | null
+  comment: string
+}
+
+export interface JournalEntry {
+  id: number
+  date: string
+  description: string
+  source_type: string
+  source_display: string
+  source_id: number | null
+  postings: Posting[]
+  total: string
+  created_by_name: string | null
+  created_at: string
+}
+
+export interface Invoice {
+  id: number
+  number: string
+  client: number
+  client_name: string
+  shipment: number | null
+  shipment_number: string | null
+  order: number | null
+  order_number: string | null
+  date: string
+  due_date: string
+  amount: string
+  paid: string
+  remaining: string
+  status: 'unpaid' | 'partial' | 'paid'
+  days_overdue: number
+}
+
+export interface Payment {
+  id: number
+  number: string
+  direction: 'incoming' | 'outgoing'
+  direction_display: string
+  method: 'bank' | 'cash'
+  method_display: string
+  date: string
+  amount: string
+  client: number | null
+  client_name: string | null
+  supplier: number | null
+  supplier_name: string | null
+  invoice: number | null
+  invoice_number: string | null
+  comment: string
+  allocations: { invoice: number; invoice_number: string; amount: string }[]
+  created_by_name: string | null
+  created_at: string
+}
+
+export interface TrialBalanceRow {
+  account: number
+  code: string
+  name: string
+  opening_debit: string
+  opening_credit: string
+  turnover_debit: string
+  turnover_credit: string
+  closing_debit: string
+  closing_credit: string
+}
+
+export interface TrialBalance {
+  date_from: string
+  date_to: string
+  rows: TrialBalanceRow[]
+  totals: Partial<Record<keyof Omit<TrialBalanceRow, 'account' | 'code' | 'name'>, string>>
+}
+
+export interface AccountCard {
+  account: string
+  name: string
+  opening: string
+  closing: string
+  rows: {
+    date: string
+    entry: number
+    description: string
+    source_type: string
+    source_id: number | null
+    corr_account: string
+    debit: string | null
+    credit: string | null
+    counterparty: string | null
+    balance: string
+  }[]
+}
+
+export interface Receivables {
+  rows: { client: number; client_name: string; invoiced: string; paid: string; debt: string; advance: string; overdue: string; open_invoices: number }[]
+  total_debt: string
+  total_overdue: string
+}
+
+export interface Payables {
+  rows: { supplier: number; supplier_name: string; received: string; paid: string; debt: string }[]
+  total_debt: string
+}
+
+export interface ProfitLoss {
+  date_from: string
+  date_to: string
+  revenue: string
+  cost_of_sales: string
+  gross_profit: string
+  gross_margin: string | null
+  admin_expenses: string
+  other_expenses: string
+  net_profit: string
+}

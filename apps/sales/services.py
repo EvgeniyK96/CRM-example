@@ -18,6 +18,7 @@ from apps.warehouse.models import MoveKind
 from apps.warehouse.services import available_qty
 from core.exceptions import DomainError
 
+from . import signals
 from .models import SalesOrder, SalesOrderLine, Shipment, ShipmentItem
 
 Status = SalesOrder.Status
@@ -153,4 +154,5 @@ def ship(order: SalesOrder, user=None, *, vehicle="", driver="", comment="") -> 
 
     order.status = Status.SHIPPED
     order.save(update_fields=["status"])
+    signals.shipment_created.send(sender=Shipment, shipment=shipment)
     return shipment

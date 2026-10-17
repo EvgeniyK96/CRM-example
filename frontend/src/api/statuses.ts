@@ -52,3 +52,29 @@ export const TASK_STATUS: Record<string, StatusInfo> = {
   done: { color: 'green', label: 'Выполнено' },
   cancelled: { color: 'default', label: 'Отменено' },
 }
+
+export const INVOICE_STATUS: Record<string, StatusInfo> = {
+  unpaid: { color: 'red', label: 'Не оплачен' },
+  partial: { color: 'orange', label: 'Оплачен частично' },
+  paid: { color: 'green', label: 'Оплачен' },
+}
+
+export const ENTRY_SOURCE: Record<string, StatusInfo> = {
+  manual: { color: 'purple', label: 'Ручная' },
+  receipt: { color: 'blue', label: 'Приёмка' },
+  production_start: { color: 'orange', label: 'Запуск производства' },
+  production_finish: { color: 'cyan', label: 'Выпуск' },
+  shipment: { color: 'green', label: 'Отгрузка' },
+  write_off: { color: 'red', label: 'Списание' },
+  opening: { color: 'default', label: 'Начальные остатки' },
+  payment: { color: 'gold', label: 'Платёж' },
+}
+
+/** Ссылка на документ-основание проводки во фронтенде */
+export const entrySourcePath = (type: string, id: number | null): string | null => {
+  if (id == null) return null
+  const paths: Record<string, string> = {
+    receipt: '/receipts', production_start: '/tasks', production_finish: '/tasks', shipment: '/shipments', opening: '/trace',
+  }
+  return paths[type] ? `${paths[type]}/${id}` : null
+}

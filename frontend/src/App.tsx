@@ -8,14 +8,19 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import AppLayout from './components/Layout'
 import { navRoles } from './components/nav'
+import Accounts from './pages/Accounts'
 import Clients from './pages/Clients'
 import Employees from './pages/Employees'
+import FinanceReports from './pages/FinanceReports'
 import Home from './pages/Home'
+import Invoices from './pages/Invoices'
 import Items from './pages/Items'
+import Journal from './pages/Journal'
 import Login from './pages/Login'
 import Moves from './pages/Moves'
 import OrderDetail from './pages/OrderDetail'
 import Orders from './pages/Orders'
+import Payments from './pages/Payments'
 import PurchaseOrderDetail from './pages/PurchaseOrderDetail'
 import PurchaseOrders from './pages/PurchaseOrders'
 import ReceiptDetail from './pages/ReceiptDetail'
@@ -69,6 +74,11 @@ export default function App() {
                   <Route path="tasks" element={<Guard section="/tasks"><Tasks /></Guard>} />
                   <Route path="tasks/:id" element={<Guard section="/tasks"><TaskDetail /></Guard>} />
                   <Route path="trace/:lotId" element={<Trace />} />
+                  <Route path="invoices" element={<Guard section="/invoices"><Invoices /></Guard>} />
+                  <Route path="payments" element={<Guard section="/payments"><Payments /></Guard>} />
+                  <Route path="journal" element={<Guard section="/journal"><Journal /></Guard>} />
+                  <Route path="finance" element={<Guard section="/finance"><FinanceReports /></Guard>} />
+                  <Route path="accounts" element={<Guard section="/accounts"><Accounts /></Guard>} />
                   <Route path="items" element={<Items />} />
                   <Route path="recipes" element={<Guard section="/recipes"><Recipes /></Guard>} />
                   <Route path="recipes/:id" element={<Guard section="/recipes"><RecipeDetail /></Guard>} />

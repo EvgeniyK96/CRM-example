@@ -31,3 +31,16 @@ def ReadAnyWriteRoles(*roles):
 
     _ReadAnyWriteRoles.__name__ = "ReadAnyWriteRoles_" + "_".join(roles)
     return _ReadAnyWriteRoles
+
+
+def RoleAccess(*, read=(), write=()):
+    """Чтение — ролям read и write, изменение — только write (администратор может всё)."""
+
+    class _RoleAccess(BasePermission):
+        def has_permission(self, request, view):
+            if request.method in SAFE_METHODS:
+                return has_role(request.user, *read, *write)
+            return has_role(request.user, *write)
+
+    _RoleAccess.__name__ = f"RoleAccess_r_{'_'.join(read)}_w_{'_'.join(write)}"
+    return _RoleAccess

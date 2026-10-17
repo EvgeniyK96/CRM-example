@@ -15,6 +15,7 @@ from django.utils import timezone
 
 from core.exceptions import DomainError
 
+from . import signals
 from .models import Lot, MoveKind, StockMove
 
 
@@ -103,9 +104,20 @@ def write_off(lot: Lot, quantity: Decimal, *, reason: str, user=None) -> StockMo
     balance = lot_balance(lot)
     if quantity > balance:
         raise StockError(f"На партии {lot.number} только {balance.normalize():f} {lot.item.unit.code}.")
-    return StockMove.objects.create(
+    move = StockMove.objects.create(
         lot=lot, kind=MoveKind.WRITE_OFF, quantity=-quantity, reference=reason, created_by=user
     )
+    signals.stock_written_off.send(sender=StockMove, move=move)
+    return move
+
+
+@transaction.atomic
+def enter_opening_balance(item, quantity: Decimal, *, on_date: date, unit_cost: Decimal, user=None) -> Lot:
+    """Ввод начальных остатков (без документа поступления), например при старте учёта."""
+    lot = receive(item, quantity, on_date=on_date, unit_cost=unit_cost, kind=MoveKind.ADJUSTMENT,
+                  reference="Ввод начальных остатков", user=user)
+    signals.opening_balance_entered.send(sender=Lot, lot=lot)
+    return lot
 
 
 def expiry_status(lot: Lot, today: date | None = None) -> tuple[str, int]:

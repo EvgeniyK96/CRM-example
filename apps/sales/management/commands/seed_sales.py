@@ -14,7 +14,7 @@ from apps.recipes.services import calculate
 from apps.sales import services
 from apps.sales.models import Client, SalesOrder, SalesOrderLine
 from apps.warehouse import services as stock
-from apps.warehouse.models import Lot, MoveKind
+from apps.warehouse.models import Lot
 
 # название, тип, скидка %, отсрочка дней, адрес доставки
 CLIENTS = [
@@ -69,9 +69,8 @@ class Command(BaseCommand):
         products = {i.code: i for i in Item.objects.filter(kind="product")}
         for code, (qty, days_ago) in OPENING_STOCK.items():
             product = products[code]
-            stock.receive(product, Decimal(qty), on_date=today - timedelta(days=days_ago),
-                          unit_cost=recipe_unit_cost(product), kind=MoveKind.ADJUSTMENT,
-                          reference="Ввод начальных остатков")
+            stock.enter_opening_balance(product, Decimal(qty), on_date=today - timedelta(days=days_ago),
+                                        unit_cost=recipe_unit_cost(product))
 
         manager = User.objects.filter(role="sales").first()
         for client_name, days, lines, do_confirm in ORDERS:
