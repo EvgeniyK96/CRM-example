@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -16,7 +17,21 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
+
+
+def index(request):
+    """Корень бэкенда: это API, а не сайт — подсказываем, куда идти."""
+    return JsonResponse({
+        "service": "CRM кондитерской фабрики — API",
+        "api": "/api/",
+        "docs": "/swagger/",
+        "admin": "/admin/",
+        "frontend": "интерфейс разворачивается отдельно (папка frontend)",
+    })
+
+
 urlpatterns = [
+    path("", index, name="index"),
     path("admin/", admin.site.urls),
     path("api/accounts/", include("apps.accounts.urls")),
     path("api/hr/", include("apps.hr.urls")),

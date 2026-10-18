@@ -10,6 +10,21 @@ jobs:
   backend:
     runs-on: ubuntu-latest
 
+    # Тесты — на PostgreSQL, как в продакшене: SQLite пропускает то, что PostgreSQL запрещает
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: crm
+          POSTGRES_PASSWORD: crm
+          POSTGRES_DB: crm
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U crm" --health-interval 5s --health-timeout 5s --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://crm:crm@localhost:5432/crm
+
     steps:
       - uses: actions/checkout@v4
 

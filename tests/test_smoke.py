@@ -23,3 +23,9 @@ def test_jwt_create_endpoint_exists(client):
 def test_admin_redirect(client):
     response = client.get("/admin/")
     assert response.status_code in (200, 302)
+
+
+@pytest.mark.django_db
+def test_root_describes_api(client):
+    response = client.get("/")
+    assert response.status_code == 200 and response.json()["docs"] == "/swagger/"

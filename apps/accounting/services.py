@@ -176,11 +176,11 @@ def allocate(client) -> None:
     сначала на счёт, указанный в платеже, затем на самые ранние по сроку оплаты.
     Остаток платежа остаётся авансом и закроет следующий счёт.
     """
-    payments = list(
-        Payment.objects.select_for_update()
-        .filter(client=client, direction=Payment.Direction.INCOMING)
-        .annotate(allocated=_allocated("allocations")).order_by("date", "pk")
-    )
+    incoming = Payment.objects.filter(client=client, direction=Payment.Direction.INCOMING)
+    # Сначала блокируем платежи, потом отдельным запросом считаем разнесённое:
+    # PostgreSQL не допускает FOR UPDATE вместе с агрегатом (GROUP BY)
+    list(incoming.select_for_update().values_list("pk"))
+    payments = list(incoming.annotate(allocated=_allocated("allocations")).order_by("date", "pk"))
     invoices = list(invoices_with_paid().filter(client=client).order_by("due_date", "pk"))
     remaining = {inv.pk: inv.amount - inv.paid for inv in invoices}
     by_pk = {inv.pk: inv for inv in invoices}
