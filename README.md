@@ -112,6 +112,7 @@ npm run dev                     # http://localhost:5173
 |---|---|
 | [docs/SCENARIO.md](docs/SCENARIO.md) | Сценарий демонстрации по ролям |
 | [docs/ER.md](docs/ER.md) | ER-диаграммы по доменам (Mermaid, генерируются из моделей: `python manage.py er_diagram --output docs/ER.md`) |
+| [docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md) | Деплой на Vercel: бэкенд, фронтенд, база Neon Postgres |
 | [docs/PLAN.md](docs/PLAN.md) | План проекта, статус этапов и архитектурные соглашения |
 | `/swagger/`, `/redoc/` | Документация API (на запущенном сервере) |
 

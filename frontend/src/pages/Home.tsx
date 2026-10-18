@@ -29,7 +29,6 @@ export default function Home() {
   const { user } = useAuth()
   return (
     <>
-      <Typography.Title level={3}>Добро пожаловать, {user?.first_name || user?.username}</Typography.Title>
       {user?.department_name && <Typography.Paragraph type="secondary">{user.role_display} · {user.department_name}</Typography.Paragraph>}
       <Dashboard />
       <div style={{ marginTop: 16 }}><MyPayslips /></div>

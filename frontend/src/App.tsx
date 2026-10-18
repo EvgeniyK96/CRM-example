@@ -4,11 +4,12 @@ import ruRU from 'antd/locale/ru_RU'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ru'
 import { lazy, Suspense, type ComponentType, type ReactElement } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import AppLayout from './components/Layout'
 import { navRoles } from './components/nav'
 import Login from './pages/Login'
+import { theme } from './theme'
 
 dayjs.locale('ru')
 
@@ -65,6 +66,12 @@ function Guard({ section, children }: { section?: string; children: ReactElement
   return roles === 'all' || can(...roles) ? children : <Navigate to="/" replace />
 }
 
+/** Страница перемонтируется при смене ?q= — переход из глобального поиска применяет новый фильтр. */
+function RoutePage({ Page }: { Page: ComponentType }) {
+  const { search } = useLocation()
+  return <Page key={search} />
+}
+
 /** Страницы без меню (печатные формы) — только для вошедших. */
 function RequireAuth({ children }: { children: ReactElement }) {
   const { user, loading } = useAuth()
@@ -74,7 +81,7 @@ function RequireAuth({ children }: { children: ReactElement }) {
 
 export default function App() {
   return (
-    <ConfigProvider locale={ruRU}>
+    <ConfigProvider locale={ruRU} theme={theme}>
       <AntApp>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
@@ -86,7 +93,7 @@ export default function App() {
                 <Route element={<AppLayout />}>
                   <Route index element={<Home />} />
                   {ROUTES.map(({ path, section, Page }) => (
-                    <Route key={path} path={path} element={<Guard section={section}><Page /></Guard>} />
+                    <Route key={path} path={path} element={<Guard section={section}><RoutePage Page={Page} /></Guard>} />
                   ))}
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,5 +1,6 @@
 import { Form, Input, InputNumber, Segmented, Select, Switch, Tag, type TableColumnsType } from 'antd'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { toOptions, useList } from '../api/hooks'
 import type { Category, Department, Item, ItemKind, Unit } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
@@ -7,7 +8,8 @@ import CrudPage from '../components/CrudPage'
 
 export default function Items() {
   const { can } = useAuth()
-  const [kind, setKind] = useState<ItemKind>('product')
+  const [query] = useSearchParams()
+  const [kind, setKind] = useState<ItemKind>(query.get('kind') === 'raw' ? 'raw' : 'product')
   const isProduct = kind === 'product'
 
   const units = useList<Unit>('/catalog/units/')

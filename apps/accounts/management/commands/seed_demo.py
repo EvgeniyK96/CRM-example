@@ -25,7 +25,14 @@ USERS = [
 class Command(BaseCommand):
     help = "Полный набор учебных данных: пользователи и сотрудники, справочники, рецептуры, склад, заказы, производство"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--password", default=DEMO_PASSWORD,
+            help="Пароль новых демо-пользователей. На публичном сервере задайте свой, а не общеизвестный demo12345",
+        )
+
     def handle(self, *args, **options):
+        password = options["password"]
         call_command("seed_hr", stdout=self.stdout)
         hire_date = timezone.localdate().replace(month=1, day=10)
         for username, role, first_name, last_name, dep, pos in USERS:
@@ -35,7 +42,7 @@ class Command(BaseCommand):
                           "is_staff": role == Role.ADMIN, "is_superuser": role == Role.ADMIN},
             )
             if created:
-                user.set_password(DEMO_PASSWORD)
+                user.set_password(password)
                 user.save()
             if dep and not Employee.objects.filter(user=user).exists():
                 employee = Employee.objects.create(
@@ -45,4 +52,4 @@ class Command(BaseCommand):
                 hr.hire(employee)
         call_command("seed_payroll", stdout=self.stdout)  # тянет за собой все модули по цепочке до зарплаты
         names = ", ".join(u for u, *_ in USERS)
-        self.stdout.write(self.style.SUCCESS(f"Готово. Пользователи: {names}; пароль новых — {DEMO_PASSWORD}"))
+        self.stdout.write(self.style.SUCCESS(f"Готово. Пользователи: {names}; пароль новых — {password}"))

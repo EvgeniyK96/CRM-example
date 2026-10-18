@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "corsheaders",
     "django_filters",
+    "core",
     "apps.accounts",
     "apps.hr",
     "apps.catalog",
@@ -138,6 +139,12 @@ AUTH_USER_MODEL = "accounts.User"
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:5173", "http://127.0.0.1:5173"])
 
+# За прокси хостинга (Vercel и т. п.) запрос приходит по HTTP, а исходный протокол — в X-Forwarded-Proto.
+# Без этого Django считает запрос небезопасным, и вход в админку падает на проверке CSRF (Origin https ≠ http).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# Домены, с которых разрешены формы с CSRF (админка): https://crm-backend.vercel.app и т. п.
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {
         "Bearer": {
@@ -161,3 +168,9 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Администрирование CRM кондитерской фабрики",
     "copyright": "Учебный проект",
 }
+
+# Продакшен (DEBUG=False): куки сессии и CSRF только по HTTPS.
+# Редирект на HTTPS и HSTS на доменах *.vercel.app делает сама платформа.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True

@@ -57,3 +57,18 @@ def test_other_roles_read_only_employees(make_client, refs, role):
 def test_fire_date_before_hire_rejected(make_client, refs):
     r = make_client(Role.HR).post("/api/hr/employees/", employee_payload(refs, fire_date="2025-01-01"), format="json")
     assert r.status_code == 400 and "fire_date" in r.data
+
+
+@pytest.mark.django_db
+def test_admin_login_behind_https_proxy(settings):
+    """За прокси (Vercel) браузер шлёт Origin https://…, а до Django доходит HTTP + X-Forwarded-Proto: https."""
+    from django.test import Client
+
+    settings.ALLOWED_HOSTS = ["crm-backend.vercel.app"]
+    User.objects.create_superuser("root", "r@r.r", "pass12345")
+    client = Client(enforce_csrf_checks=True, HTTP_HOST="crm-backend.vercel.app", HTTP_X_FORWARDED_PROTO="https")
+    client.get("/admin/login/")
+    r = client.post("/admin/login/", {"username": "root", "password": "pass12345", "next": "/admin/",
+                                      "csrfmiddlewaretoken": client.cookies["csrftoken"].value},
+                    HTTP_ORIGIN="https://crm-backend.vercel.app")
+    assert r.status_code == 302 and r["Location"] == "/admin/"

@@ -2,6 +2,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { App, Button, Form, Input, Modal, Popconfirm, Table, type TableColumnsType } from 'antd'
 import { useState, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { errorText, fieldErrors, useList } from '../api/hooks'
 
@@ -27,7 +28,9 @@ export default function CrudPage<T extends { id: number }>(props: Props<T>) {
   const { message } = App.useApp()
   const qc = useQueryClient()
   const [form] = Form.useForm()
-  const [search, setSearch] = useState('')
+  // ?q= в адресе — переход из глобального поиска
+  const [params] = useSearchParams()
+  const [search, setSearch] = useState(params.get('q') ?? '')
   // undefined — форма закрыта, null — новая запись
   const [editing, setEditing] = useState<T | null | undefined>(undefined)
 
@@ -60,7 +63,7 @@ export default function CrudPage<T extends { id: number }>(props: Props<T>) {
   return (
     <>
       <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-        <Input.Search placeholder={props.searchPlaceholder ?? 'Поиск'} allowClear onSearch={setSearch} style={{ maxWidth: 320 }} />
+        <Input.Search placeholder={props.searchPlaceholder ?? 'Поиск'} allowClear onSearch={setSearch} defaultValue={search} style={{ maxWidth: 320 }} />
         {props.toolbar}
         {canEdit && <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditing(null)}>Добавить</Button>}
       </div>

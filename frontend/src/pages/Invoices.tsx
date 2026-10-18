@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Button, Card, Col, Input, Row, Select, Statistic, Table, Tag, Typography } from 'antd'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { toOptions, useList } from '../api/hooks'
 import { INVOICE_STATUS } from '../api/statuses'
@@ -49,8 +49,10 @@ function ReceivablesCard({ onClient }: { onClient: (id: number) => void }) {
 export default function Invoices() {
   const { can } = useAuth()
   const [client, setClient] = useState<number>()
-  const [status, setStatus] = useState<string | undefined>('open')
-  const [search, setSearch] = useState('')
+  const [query] = useSearchParams()
+  const [search, setSearch] = useState(query.get('q') ?? '')
+  // по ссылке на конкретный счёт показываем его, в каком бы статусе он ни был
+  const [status, setStatus] = useState<string | undefined>(query.get('q') ? undefined : 'open')
   const [paying, setPaying] = useState<PaymentPreset | null>(null)
   const clients = useList<Client>('/sales/clients/')
   const invoices = useList<Invoice>('/accounting/invoices/', { client, status, search })
@@ -61,7 +63,7 @@ export default function Invoices() {
       <ReceivablesCard onClient={setClient} />
       <Card size="small" title="Счета покупателям">
         <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
-          <Input.Search placeholder="Счёт, клиент, заказ" allowClear onSearch={setSearch} style={{ maxWidth: 260 }} />
+          <Input.Search placeholder="Счёт, клиент, заказ" allowClear onSearch={setSearch} defaultValue={search} style={{ maxWidth: 260 }} />
           <Select allowClear showSearch={{ optionFilterProp: 'label' }} placeholder="Клиент" style={{ width: 260 }}
             value={client} onChange={setClient} options={toOptions(clients.data, (c) => c.name)} />
           <Select allowClear placeholder="Статус" style={{ width: 220 }} value={status} onChange={setStatus} options={STATUS_FILTER} />

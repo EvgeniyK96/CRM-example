@@ -2,6 +2,7 @@ import { Alert, Button, Card, Form, Input, Typography } from 'antd'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { ACCENT, WALLPAPER } from '../theme'
 
 export default function Login() {
   const { user, login } = useAuth()
@@ -25,9 +26,13 @@ export default function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#f5f5f5' }}>
-      <Card style={{ width: 360 }}>
-        <Typography.Title level={3} style={{ textAlign: 'center' }}>Кондитерская фабрика</Typography.Title>
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: WALLPAPER, padding: 16 }}>
+      <Card style={{ width: 380, maxWidth: '100%', boxShadow: '0 12px 40px rgba(0,20,40,0.35)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center', marginBottom: 8 }}>
+          <span className="shell-logo-mark" style={{ background: ACCENT, color: '#fff' }}>Ф</span>
+          <Typography.Title level={3} style={{ margin: 0 }}>CRM Фабрика</Typography.Title>
+        </div>
+        <Typography.Paragraph type="secondary" style={{ textAlign: 'center' }}>Кондитерская фабрика · учебный проект</Typography.Paragraph>
         {error && <Alert type="error" title={error} style={{ marginBottom: 16 }} />}
         <Form layout="vertical" onFinish={onFinish}>
           <Form.Item name="username" label="Логин" rules={[{ required: true }]}><Input autoFocus /></Form.Item>

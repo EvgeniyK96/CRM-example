@@ -101,3 +101,19 @@ def test_report_permissions(make_client, world):
     assert make_client(Role.SALES).get("/api/reports/production/").status_code == 403
     assert make_client(Role.HR).get("/api/reports/stock/").status_code == 403
     assert make_client(Role.ACCOUNTANT).get("/api/reports/sales/?date_from=2026-01-01&date_to=2026-01-31").status_code == 200
+
+
+def test_global_search_respects_roles(make_client, world):
+    task = production.create_task(world["ginger"], D(5), TODAY)
+    admin = make_client(Role.ADMIN).get("/api/reports/search/?q=пряник").data
+    assert {g["type"] for g in admin} >= {"item", "task", "recipe"}
+    item = next(g for g in admin if g["type"] == "item")["results"][0]
+    assert item["path"] == "/items?q=P1&kind=product"
+
+    by_number = make_client(Role.SHOP_HEAD).get(f"/api/reports/search/?q={task.number}").data
+    assert by_number[0]["results"][0]["path"] == f"/tasks/{task.pk}"
+
+    # кладовщику рецептуры недоступны, а номенклатура — видна всем
+    store = {g["type"] for g in make_client(Role.STOREKEEPER).get("/api/reports/search/?q=пряник").data}
+    assert "recipe" not in store and "item" in store
+    assert make_client(Role.SALES).get("/api/reports/search/?q=п").data == []  # меньше 2 символов

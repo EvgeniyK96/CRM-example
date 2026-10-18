@@ -175,3 +175,11 @@ def test_seed_commands(db):
 
     call_command("seed_recipes")
     assert Recipe.objects.filter(status="active").count() == Item.objects.filter(kind="product").count() == 9
+
+
+def test_cyrillic_search_is_case_insensitive(tech, cat):
+    """SQLite по умолчанию не сравнивает кириллицу без учёта регистра — core.sqlite это исправляет."""
+    names = [r["name"] for r in tech.get("/api/catalog/items/?search=мука").data["results"]]
+    assert names == ["Мука"]
+    assert tech.get("/api/catalog/items/?search=МЁД").data["count"] == 1
+    assert tech.get("/api/catalog/items/?search=r1").data["count"] == 1  # латиница по-прежнему работает

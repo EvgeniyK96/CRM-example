@@ -7,4 +7,5 @@ urlpatterns = [
     path("sales/", views.SalesReportView.as_view(), name="report-sales"),
     path("production/", views.ProductionReportView.as_view(), name="report-production"),
     path("stock/", views.StockReportView.as_view(), name="report-stock"),
+    path("search/", views.SearchView.as_view(), name="search"),
 ]

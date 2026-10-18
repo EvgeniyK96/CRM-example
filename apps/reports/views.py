@@ -5,6 +5,7 @@ from apps.accounting.serializers import PeriodSerializer
 from apps.accounts.permissions import HasRole
 
 from . import services
+from .search import search
 
 
 def _period(request):
@@ -45,3 +46,10 @@ class StockReportView(APIView):
 
     def get(self, request):
         return Response(services.stock_summary())
+
+
+class SearchView(APIView):
+    """Глобальный поиск: ?q= (от 2 символов). Группы результатов — только доступные роли."""
+
+    def get(self, request):
+        return Response(search(request.user, request.query_params.get("q", "")))

@@ -1,7 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Modal, Select, Table, type TableColumnsType } from 'antd'
 import { useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useApiAction, useList } from '../api/hooks'
 import { statusOptions, type StatusInfo } from '../api/statuses'
@@ -26,7 +26,8 @@ interface Props<T extends { id: number }> {
 /** Список документов с фильтром по статусу; создание черновика открывает его карточку. */
 export default function DocumentList<T extends { id: number }>(props: Props<T>) {
   const navigate = useNavigate()
-  const [search, setSearch] = useState('')
+  const [query] = useSearchParams()
+  const [search, setSearch] = useState(query.get('q') ?? '')
   const [status, setStatus] = useState<string>()
   const [open, setOpen] = useState(false)
   const rows = useList<T>(props.url, { search, status, ...props.params })
@@ -39,7 +40,7 @@ export default function DocumentList<T extends { id: number }>(props: Props<T>) 
   return (
     <>
       <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-        <Input.Search placeholder={props.searchPlaceholder ?? 'Номер'} allowClear onSearch={setSearch} style={{ maxWidth: 260 }} />
+        <Input.Search placeholder={props.searchPlaceholder ?? 'Номер'} allowClear onSearch={setSearch} defaultValue={search} style={{ maxWidth: 260 }} />
         <Select allowClear placeholder="Статус" style={{ width: 200 }} value={status} onChange={setStatus} options={statusOptions(props.statuses)} />
         {props.filters}
         {props.canCreate && <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpen(true)}>Создать</Button>}
