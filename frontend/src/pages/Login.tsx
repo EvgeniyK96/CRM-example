@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios'
 import { Alert, Button, Card, Form, Input, Typography } from 'antd'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
@@ -18,8 +19,14 @@ export default function Login() {
     try {
       await login(v.username, v.password)
       navigate('/')
-    } catch {
-      setError('Неверный логин или пароль')
+    } catch (e) {
+      // «Неверный пароль» — только когда сервер так и ответил; иначе показываем настоящую причину
+      const status = isAxiosError(e) ? e.response?.status : undefined
+      const isJson = isAxiosError(e) && String(e.response?.headers['content-type'] ?? '').includes('json')
+      if (status === 401) setError('Неверный логин или пароль')
+      else if (!status) setError('Сервер недоступен. Проверьте подключение и адрес API.')
+      else if (!isJson || status === 404 || status === 405) setError(`API не отвечает (HTTP ${status}): запросы /api не доходят до бэкенда`)
+      else setError(`Ошибка сервера (HTTP ${status})`)
     } finally {
       setBusy(false)
     }
