@@ -1,28 +1,35 @@
 import { DatePicker, Form, Input, Select } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
-import { useState } from 'react'
 import { toOptions, useList } from '../api/hooks'
 import { RECEIPT_STATUS } from '../api/statuses'
 import type { Receipt, Supplier } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import DocumentList from '../components/DocumentList'
+import type { FilterField, FilterPreset } from '../components/filters'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtMoney, toApiDate } from '../utils/format'
 
 export default function Receipts() {
   const { can } = useAuth()
-  const [supplier, setSupplier] = useState<number>()
   const suppliers = useList<Supplier>('/catalog/suppliers/', { is_active: true })
   const supplierOptions = toOptions(suppliers.data, (s) => s.name)
+  const fields: FilterField[] = [
+    { key: 'supplier', label: 'Поставщик', type: 'select', options: supplierOptions },
+    { key: 'date', label: 'Дата приёмки', type: 'dateRange', params: ['date_from', 'date_to'] },
+  ]
+  const presets: FilterPreset[] = [
+    { key: 'drafts', label: 'Черновики', values: () => ({ status: ['draft'] }) },
+    { key: 'month', label: 'За этот месяц', values: () => ({ date: [dayjs().startOf('month'), dayjs().endOf('month')] }) },
+  ]
 
   return (
     <DocumentList<Receipt>
       url="/purchasing/receipts/"
       path="/receipts"
       statuses={RECEIPT_STATUS}
-      params={{ supplier }}
-      searchPlaceholder="Номер, накладная, поставщик"
-      filters={<Select allowClear placeholder="Поставщик" style={{ width: 260 }} value={supplier} onChange={setSupplier} options={supplierOptions} />}
+      filterFields={fields}
+      presets={presets}
+      searchPlaceholder="Фильтр + поиск: номер, накладная, поставщик"
       canCreate={can('storekeeper')}
       createTitle="Приёмка без заявки"
       createInitial={{ date: dayjs() }}

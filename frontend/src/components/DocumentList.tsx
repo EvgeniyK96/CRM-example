@@ -1,10 +1,12 @@
 import { PlusOutlined, ProjectOutlined, UnorderedListOutlined } from '@ant-design/icons'
-import { Button, Form, Input, Modal, Segmented, Select, Spin, Table, type TableColumnsType } from 'antd'
-import { useState, type ReactNode } from 'react'
+import { Button, Form, Modal, Segmented, Spin, Table, type TableColumnsType } from 'antd'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useApiAction, useList } from '../api/hooks'
 import { statusOptions, type StatusInfo } from '../api/statuses'
+import FilterBar from './FilterBar'
+import { filterParams, type FilterField, type FilterPreset, type FilterValues } from './filters'
 
 type View = 'list' | 'board'
 
@@ -15,8 +17,13 @@ interface Props<T extends { id: number }> {
   path: string
   statuses: Record<string, StatusInfo>
   columns: TableColumnsType<T>
+  /** Постоянные параметры запроса (не видны в фильтре) */
   params?: Record<string, unknown>
-  filters?: ReactNode
+  /** Поля фильтра страницы; «Статус» добавляется автоматически */
+  filterFields?: FilterField[]
+  presets?: FilterPreset[]
+  /** Фильтр при открытии страницы (например, свой цех у начальника цеха) */
+  defaultFilter?: FilterValues
   searchPlaceholder?: string
   canCreate: boolean
   createTitle: string
@@ -42,12 +49,17 @@ export default function DocumentList<T extends { id: number }>(props: Props<T>) 
   const navigate = useNavigate()
   const [query] = useSearchParams()
   const [search, setSearch] = useState(query.get('q') ?? '')
-  const [status, setStatus] = useState<string>()
+  const [filter, setFilter] = useState<FilterValues>(props.defaultFilter ?? {})
   const [open, setOpen] = useState(false)
   const [view, setView] = useState<View>(() => (props.board ? readView(props.path) : 'list'))
   const board = view === 'board' && props.board
   // На канбане статусы — это колонки, фильтр по статусу не нужен
-  const rows = useList<T>(props.url, { search, status: board ? undefined : status, ...props.params })
+  const { statuses, filterFields } = props
+  const fields = useMemo<FilterField[]>(() => [
+    ...(board ? [] : [{ key: 'status', label: 'Статус', type: 'select' as const, multiple: true, options: statusOptions(statuses) }]),
+    ...(filterFields ?? []),
+  ], [board, statuses, filterFields])
+  const rows = useList<T>(props.url, { search, ...filterParams(fields, filter), ...props.params })
 
   const create = useApiAction(async (v: object) => (await api.post<T>(props.url, v)).data, {
     invalidate: [props.url],
@@ -72,9 +84,8 @@ export default function DocumentList<T extends { id: number }>(props: Props<T>) 
             { value: 'board', label: 'Канбан', icon: <ProjectOutlined /> },
           ]} />
         )}
-        <Input.Search placeholder={props.searchPlaceholder ?? 'Номер'} allowClear onSearch={setSearch} defaultValue={search} style={{ maxWidth: 260 }} />
-        {!board && <Select allowClear placeholder="Статус" style={{ width: 200 }} value={status} onChange={setStatus} options={statusOptions(props.statuses)} />}
-        {props.filters}
+        <FilterBar fields={fields} presets={props.presets} value={filter} onChange={setFilter}
+          search={search} onSearch={setSearch} searchPlaceholder={props.searchPlaceholder} storageKey={`filters:${props.path}`} />
         {props.canCreate && <Button type="primary" icon={<PlusOutlined />} onClick={() => setOpen(true)}>Создать</Button>}
       </div>
       {board ? (

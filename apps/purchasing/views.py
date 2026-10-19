@@ -6,6 +6,7 @@ from apps.accounts.permissions import ReadAnyWriteRoles
 from core.views import CreatedByMixin, DraftOnlyDestroyMixin
 
 from . import services
+from .filters import PurchaseOrderFilter, ReceiptFilter
 from .models import PurchaseOrder, Receipt
 from .serializers import PurchaseOrderSerializer, ReceiptSerializer
 
@@ -18,7 +19,7 @@ class PurchaseOrderViewSet(CreatedByMixin, DraftOnlyDestroyMixin, viewsets.Model
     queryset = PurchaseOrder.objects.select_related("supplier", "created_by").prefetch_related("lines__item__unit")
     serializer_class = PurchaseOrderSerializer
     permission_classes = [StorekeeperWrite]
-    filterset_fields = ["status", "supplier"]
+    filterset_class = PurchaseOrderFilter
     search_fields = ["number", "supplier__name", "comment"]
     ordering_fields = ["created_at", "expected_date"]
 
@@ -45,7 +46,7 @@ class ReceiptViewSet(CreatedByMixin, DraftOnlyDestroyMixin, viewsets.ModelViewSe
     )
     serializer_class = ReceiptSerializer
     permission_classes = [StorekeeperWrite]
-    filterset_fields = ["status", "supplier", "order"]
+    filterset_class = ReceiptFilter
     search_fields = ["number", "invoice_number", "supplier__name"]
     ordering_fields = ["date", "posted_at"]
 

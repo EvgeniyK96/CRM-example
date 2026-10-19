@@ -205,6 +205,21 @@ def test_cancel_order(store, supplier, flour):
     assert Receipt.objects.count() == 0
 
 
+def test_filters_several_statuses_and_dates(store, supplier, flour):
+    sent = create_order(store, supplier, flour)
+    store.post(f"{ORDERS}{sent['id']}/send/")
+    create_order(store, supplier, flour)  # черновик
+    PurchaseOrder.objects.filter(pk=sent["id"]).update(expected_date=TODAY)
+
+    def numbers(**params):
+        return {o["number"] for o in store.get(ORDERS, params).data["results"]}
+
+    assert len(numbers(status=["draft", "sent"])) == 2
+    assert numbers(status="sent") == {sent["number"]}
+    assert numbers(expected_from=TODAY, expected_to=TODAY) == {sent["number"]}
+    assert numbers(expected_from=TODAY + timedelta(days=1)) == set()
+
+
 def test_seed_demo(db):
     from django.core.management import call_command
 

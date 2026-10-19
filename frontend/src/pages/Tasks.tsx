@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Button, Card, DatePicker, Form, Input, InputNumber, Select, Table, Typography } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
-import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { toOptions, useApiAction, useList } from '../api/hooks'
@@ -10,6 +9,7 @@ import type { DemandGroup, Department, Item, ProductionTask } from '../api/types
 import { useAuth } from '../auth/AuthContext'
 import TasksBoard from '../components/boards/TasksBoard'
 import DocumentList from '../components/DocumentList'
+import type { FilterField, FilterPreset } from '../components/filters'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtQty, toApiDate } from '../utils/format'
 
@@ -54,13 +54,24 @@ function DemandCard() {
 
 export default function Tasks() {
   const { user, can } = useAuth()
-  // Начальник цеха по умолчанию видит свой цех
-  const [department, setDepartment] = useState<number | undefined>(user?.production_department ?? undefined)
   const departments = useList<Department>('/hr/departments/', { is_production: true })
   const products = useList<Item>('/catalog/items/', { kind: 'product', is_active: true })
   const ownProducts = products.data?.filter(
     (p) => !user?.production_department || user.role !== 'shop_head' || p.department === user.production_department,
   )
+
+  const own = user?.production_department ?? undefined
+  const fields: FilterField[] = [
+    { key: 'department', label: 'Цех', type: 'select', options: toOptions(departments.data, (d) => d.name) },
+    { key: 'product', label: 'Продукт', type: 'select', options: toOptions(products.data, (p) => p.name) },
+    { key: 'planned', label: 'Плановая дата', type: 'dateRange', params: ['date_from', 'date_to'] },
+  ]
+  const presets: FilterPreset[] = [
+    ...(own ? [{ key: 'own', label: 'Мой цех', values: () => ({ department: own }) }] : []),
+    { key: 'open', label: 'Открытые', values: () => ({ status: ['planned', 'in_progress'] }) },
+    { key: 'today', label: 'На сегодня', values: () => ({ planned: [dayjs(), dayjs()] }) },
+    { key: 'week', label: 'На этой неделе', values: () => ({ planned: [dayjs().startOf('week'), dayjs().endOf('week')] }) },
+  ]
 
   return (
     <>
@@ -69,12 +80,11 @@ export default function Tasks() {
         url="/production/tasks/"
         path="/tasks"
         statuses={TASK_STATUS}
-        params={{ department }}
-        searchPlaceholder="Номер, продукт"
-        filters={
-          <Select allowClear placeholder="Цех" style={{ width: 240 }} value={department} onChange={setDepartment}
-            options={toOptions(departments.data, (d) => d.name)} />
-        }
+        filterFields={fields}
+        presets={presets}
+        // Начальник цеха по умолчанию видит свой цех
+        defaultFilter={own ? { department: own } : undefined}
+        searchPlaceholder="Фильтр + поиск: номер, продукт"
         board={(rows) => <TasksBoard rows={rows} />}
         canCreate={can('shop_head')}
         createTitle="Задание вне заказов (например, на запас)"

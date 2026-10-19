@@ -15,6 +15,47 @@ body { margin: 0; }
 .shell-title { color: #fff; font-size: 26px; font-weight: 300; margin: 6px 0 14px; letter-spacing: 0.2px; }
 .shell-workarea { border-radius: 14px; padding: 20px; min-height: calc(100vh - 150px); box-shadow: 0 6px 24px rgba(0, 20, 40, 0.18); }
 
+/* Строка «Фильтр + поиск»: условия плашками внутри поля, панель с пресетами и полями */
+.filter-bar {
+  flex: 1 1 420px; max-width: 720px; min-height: 36px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+  padding: 3px 4px 3px 10px; background: #fff; border: 1px solid #d9d9d9; border-radius: 8px; cursor: text;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.filter-bar:hover { border-color: #0b78b8; }
+.filter-bar:focus-within { border-color: #0b78b8; box-shadow: 0 0 0 2px rgba(11, 120, 184, 0.15); }
+.filter-bar-icon { color: rgba(0, 0, 0, 0.45); margin-right: 4px; }
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 2px 4px 2px 8px; border-radius: 6px;
+  background: #e6f1f8; color: #0a4f7a; font-size: 13px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.filter-chip-preset { background: #0b78b8; color: #fff; }
+.filter-chip button, .filter-bar-clear, .filter-bar-search {
+  border: 0; background: transparent; color: inherit; cursor: pointer; display: grid; place-items: center;
+  border-radius: 4px; padding: 2px 4px; font-size: 11px; opacity: 0.75;
+}
+.filter-chip button:hover, .filter-bar-clear:hover, .filter-bar-search:hover { opacity: 1; background: rgba(0, 0, 0, 0.06); }
+.filter-chip-preset button:hover { background: rgba(255, 255, 255, 0.2); }
+.filter-bar-input { flex: 1 1 120px; min-width: 120px; border: 0; outline: 0; background: transparent; font: inherit; padding: 4px 0; }
+.filter-bar-input::placeholder { color: rgba(0, 0, 0, 0.45); }
+.filter-bar-search { font-size: 14px; padding: 6px 8px; color: rgba(0, 0, 0, 0.65); }
+.filter-bar-clear { color: rgba(0, 0, 0, 0.45); }
+.filter-panel { display: flex; width: min(760px, calc(100vw - 32px)); max-height: 70vh; overflow: auto; }
+.filter-presets { flex: 0 0 200px; padding: 12px 8px; background: #f4f7f9; border-radius: 8px 0 0 8px; display: flex; flex-direction: column; gap: 2px; }
+.filter-preset { display: flex; align-items: center; border-radius: 6px; }
+.filter-preset > button:first-child {
+  flex: 1; text-align: left; border: 0; background: transparent; padding: 6px 10px; cursor: pointer; font: inherit; color: inherit; border-radius: 6px;
+}
+.filter-preset:hover { background: rgba(11, 120, 184, 0.08); }
+.filter-preset-active { background: rgba(11, 120, 184, 0.14); font-weight: 600; }
+.filter-fields { flex: 1; padding: 16px; min-width: 0; }
+.filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 16px; }
+.filter-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 4px; border-top: 1px solid #f0f0f0; padding-top: 12px; }
+.filter-naming { display: inline-flex; gap: 4px; align-items: center; }
+@media (max-width: 576px) {
+  .filter-panel { flex-direction: column; }
+  .filter-presets { flex-basis: auto; flex-direction: row; flex-wrap: wrap; border-radius: 8px 8px 0 0; }
+}
+
 /* Канбан: колонки — статусы, при перетаскивании подсвечиваются допустимые */
 .kanban { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; align-items: flex-start; }
 .kanban-column {

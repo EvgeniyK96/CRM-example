@@ -1,36 +1,47 @@
-import { DatePicker, Form, Input, Select, Switch } from 'antd'
+import { DatePicker, Form, Input, Select } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
-import { useState } from 'react'
 import { toOptions, useList } from '../api/hooks'
-import { CLIENT_KIND, SALES_ORDER_STATUS } from '../api/statuses'
+import { CLIENT_KIND, SALES_ORDER_STATUS, statusOptions } from '../api/statuses'
 import type { Client, SalesOrder } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import OrdersBoard from '../components/boards/OrdersBoard'
 import DocumentList from '../components/DocumentList'
+import type { FilterField, FilterPreset } from '../components/filters'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtMoney, toApiDate } from '../utils/format'
 
+const OPEN = ['new', 'confirmed', 'in_production', 'ready']
+
 export default function Orders() {
   const { can } = useAuth()
-  const [client, setClient] = useState<number>()
-  const [mine, setMine] = useState(false)
   const clients = useList<Client>('/sales/clients/', { is_active: true })
   const clientOptions = toOptions(clients.data, (c) => c.name)
+
+  const fields: FilterField[] = [
+    { key: 'client', label: 'Клиент', type: 'select', options: clientOptions },
+    { key: 'client_kind', label: 'Тип клиента', type: 'select', options: statusOptions(CLIENT_KIND) },
+    { key: 'delivery', label: 'Дата отгрузки', type: 'dateRange', params: ['delivery_from', 'delivery_to'] },
+    ...(can('sales') ? [{ key: 'mine', label: 'Только мои', type: 'switch' as const }] : []),
+  ]
+  const presets: FilterPreset[] = [
+    ...(can('sales') ? [{ key: 'mine', label: 'Мои заказы', values: () => ({ mine: true }) }] : []),
+    { key: 'open', label: 'В работе', values: () => ({ status: OPEN }) },
+    { key: 'today', label: 'Отгрузка сегодня', values: () => ({ delivery: [dayjs(), dayjs()] }) },
+    { key: 'overdue', label: 'Просроченные', values: () => ({ status: OPEN, delivery: [null, dayjs().subtract(1, 'day')] }) },
+    {
+      key: 'shipped-month', label: 'Отгружены в этом месяце',
+      values: () => ({ status: ['shipped'], delivery: [dayjs().startOf('month'), dayjs().endOf('month')] }),
+    },
+  ]
 
   return (
     <DocumentList<SalesOrder>
       url="/sales/orders/"
       path="/orders"
       statuses={SALES_ORDER_STATUS}
-      params={{ client, mine: mine || undefined }}
-      searchPlaceholder="Номер, клиент"
-      filters={
-        <>
-          <Select allowClear showSearch={{ optionFilterProp: 'label' }} placeholder="Клиент" style={{ width: 260 }}
-            value={client} onChange={setClient} options={clientOptions} />
-          {can('sales') && <span style={{ alignSelf: 'center' }}><Switch checked={mine} onChange={setMine} /> Мои заказы</span>}
-        </>
-      }
+      filterFields={fields}
+      presets={presets}
+      searchPlaceholder="Фильтр + поиск: номер, клиент"
       board={(rows) => <OrdersBoard rows={rows} />}
       canCreate={can('sales')}
       createTitle="Новый заказ"
