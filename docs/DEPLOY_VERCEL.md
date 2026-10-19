@@ -109,8 +109,10 @@ Vercel не запускает `migrate` сам — схему базы созд
 1. В `frontend/vercel.json` замените `ЗАМЕНИТЕ-НА-ДОМЕН-БЭКЕНДА.vercel.app` на домен бэкенда из шага 1,
    закоммитьте и запушьте:
    ```json
-   { "source": "/api/:path*", "destination": "https://crm-backend-ваш-ник.vercel.app/api/:path*" }
+   { "source": "/api/(.*)", "destination": "https://crm-backend-ваш-ник.vercel.app/api/$1" }
    ```
+   Именно регулярное выражение `(.*)`, а не `/api/:path*`: шаблон `:path*` не совпадает с путями, которые
+   заканчиваются на `/`, а в Django-API так заканчиваются все адреса.
 2. Vercel → **Add New… → Project** → тот же репозиторий → **Import**.
 3. Настройки:
    - **Project Name:** например, `crm-<ваш ник>`.
@@ -151,6 +153,7 @@ Vercel не запускает `migrate` сам — схему базы созд
 | `relation "…" does not exist` в логах | Не применены миграции (шаг 3) |
 | `could not connect to server` / таймаут базы | Нет `DATABASE_URL` в Production или забыли Redeploy после подключения базы |
 | Во фронтенде «Сервер недоступен» или 404 на `/api/…` | В `frontend/vercel.json` не тот домен бэкенда |
+| «API не отвечает (HTTP 405)», `/api/…/` отдаёт HTML приложения | Правило прокси не срабатывает на пути со слешем в конце — используйте `"/api/(.*)"` → `…/api/$1` |
 | Вместо данных — страница входа Vercel (401) | На бэкенде включена Deployment Protection для этого домена; production-домен должен быть публичным (Settings → Deployment Protection) |
 
 ## Полезные ссылки
