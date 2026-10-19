@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined, PrinterOutlined } from '@ant-design/icons'
+import { PrinterOutlined } from '@ant-design/icons'
 import { Button, Card, Descriptions, Space, Table } from 'antd'
 import { Link, useParams } from 'react-router-dom'
 import { useDetail } from '../api/hooks'
@@ -14,7 +14,6 @@ export default function ShipmentDetail() {
 
   return (
     <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
-      <Link to="/shipments"><ArrowLeftOutlined /> Все отгрузки</Link>
       <Card
         title={`Накладная ${s.number} от ${fmtDate(s.date)}`}
         extra={

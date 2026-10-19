@@ -1,7 +1,6 @@
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Button, Card, DatePicker, Descriptions, Form, Input, Popconfirm, Select, Space, Table } from 'antd'
 import type { Dayjs } from 'dayjs'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { toOptions, useApiAction, useDetail, useList } from '../api/hooks'
 import { PO_STATUS, RECEIPT_STATUS } from '../api/statuses'
@@ -41,7 +40,6 @@ export default function PurchaseOrderDetail() {
 
   return (
     <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
-      <Link to="/purchase-orders"><ArrowLeftOutlined /> Все заявки</Link>
       <Card
         title={<>Заявка {order.number} <StatusTag map={PO_STATUS} value={order.status} /></>}
         extra={isStore && (

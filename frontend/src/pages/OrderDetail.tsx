@@ -1,4 +1,3 @@
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import {
   Alert, Button, Card, DatePicker, Descriptions, Form, Input, InputNumber, Popconfirm, Select, Space, Table, Typography,
@@ -45,7 +44,6 @@ export default function OrderDetail() {
 
   return (
     <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
-      <Link to="/orders"><ArrowLeftOutlined /> Все заказы</Link>
       <Card
         title={<>Заказ {order.number} <StatusTag map={SALES_ORDER_STATUS} value={order.status} /></>}
         extra={(isSales || canShip) && (

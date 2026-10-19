@@ -1,4 +1,3 @@
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Alert, Button, Card, DatePicker, Descriptions, Form, Input, Popconfirm, Select, Space, Table } from 'antd'
 import type { Dayjs } from 'dayjs'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -32,7 +31,6 @@ export default function ReceiptDetail() {
 
   return (
     <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
-      <Link to="/receipts"><ArrowLeftOutlined /> Все приёмки</Link>
       <Card
         title={<>Приёмка {receipt.number} <StatusTag map={RECEIPT_STATUS} value={receipt.status} /></>}
         extra={editable && (

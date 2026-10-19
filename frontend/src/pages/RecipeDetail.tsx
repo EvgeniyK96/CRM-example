@@ -1,11 +1,10 @@
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   App, Button, Card, Descriptions, Form, Input, InputNumber, Popconfirm, Select, Space, Table, Tag, Typography,
 } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { errorText, toOptions, useApiAction, useList } from '../api/hooks'
 import type { Item, Recipe, RecipeCalculation, RecipeLine } from '../api/types'
@@ -63,7 +62,6 @@ export default function RecipeDetail() {
 
   return (
     <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
-      <Link to="/recipes"><ArrowLeftOutlined /> Все рецептуры</Link>
       <Card
         title={<>{recipe.product_name} · версия {recipe.version} <Tag color={status.color} style={{ marginLeft: 8 }}>{status.label}</Tag></>}
         extra={

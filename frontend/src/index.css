@@ -15,6 +15,20 @@ body { margin: 0; }
 .shell-title { color: #fff; font-size: 26px; font-weight: 300; margin: 6px 0 14px; letter-spacing: 0.2px; }
 .shell-workarea { border-radius: 14px; padding: 20px; min-height: calc(100vh - 150px); box-shadow: 0 6px 24px rgba(0, 20, 40, 0.18); }
 
+/* Слайдер карточек: «язычок» закрытия слева снаружи панели, как в Битрикс24 */
+.card-slider .ant-drawer-content-wrapper { box-shadow: -8px 0 32px rgba(0, 20, 40, 0.28); }
+.card-slider .ant-drawer-body { padding: 20px; }
+@media (max-width: 576px) { .card-slider .ant-drawer-body { padding: 10px; } }
+.card-slider-close {
+  position: absolute; top: 16px; left: -44px; width: 44px; height: 40px;
+  display: grid; place-items: center; cursor: pointer; font-size: 16px;
+  border: 0; border-radius: 20px 0 0 20px; color: #fff; background: rgba(3, 18, 36, 0.55);
+  transition: background 0.2s;
+  pointer-events: auto;  /* обёртка панели в antd — pointer-events: none */
+}
+.card-slider-close:hover { background: rgba(3, 18, 36, 0.8); }
+.card-slider-close:focus-visible { outline: 2px solid #fff; outline-offset: -4px; }
+
 .shell-search.ant-input-affix-wrapper {
   background: rgba(255, 255, 255, 0.16); border-color: transparent; border-radius: 20px; height: 36px; color: #fff;
 }

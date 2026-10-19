@@ -1,8 +1,7 @@
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { Button, Card, Descriptions, InputNumber, Modal, Popconfirm, Radio, Space, Table } from 'antd'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useApiAction, useDetail, useList } from '../api/hooks'
 import { PAYROLL_STATUS } from '../api/statuses'
@@ -42,7 +41,6 @@ export default function PayrollDetail() {
 
   return (
     <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
-      <Link to="/payroll"><ArrowLeftOutlined /> Все ведомости</Link>
       <Card
         title={<>Зарплата за {dayjs(new Date(period.year, period.month - 1)).format('MMMM YYYY')} <StatusTag map={PAYROLL_STATUS} value={period.status} /></>}
         extra={

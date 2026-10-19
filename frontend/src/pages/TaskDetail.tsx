@@ -1,4 +1,3 @@
-import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import {
   Alert, App, Button, Card, DatePicker, Descriptions, Form, Input, InputNumber, Modal, Popconfirm, Space, Table, Typography,
@@ -32,7 +31,6 @@ export default function TaskDetail() {
 
   return (
     <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
-      <Link to="/tasks"><ArrowLeftOutlined /> Все задания</Link>
       <Card
         title={<>Задание {task.number} <StatusTag map={TASK_STATUS} value={task.status} /></>}
         extra={manage && (
