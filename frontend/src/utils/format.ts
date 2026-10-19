@@ -1,4 +1,7 @@
 import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime)
 
 const qtyFormat = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 3 })
 const moneyFormat = new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -15,3 +18,7 @@ export const fmtDateTime = (value: string | null | undefined) => (value ? dayjs(
 /** dayjs → 'YYYY-MM-DD' для DRF */
 export const toApiDate = (value: dayjs.Dayjs | null | undefined) => value?.format('YYYY-MM-DD') ?? null
 export const fromApiDate = (value: string | null | undefined) => (value ? dayjs(value) : null)
+
+/** «5 минут назад»; старше недели — дата и время */
+export const fmtAgo = (value: string) =>
+  dayjs().diff(value, 'day') >= 7 ? fmtDateTime(value) : dayjs(value).fromNow()

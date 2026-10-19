@@ -15,6 +15,7 @@ import LinesFormList from '../components/LinesFormList'
 import ShipModal from '../components/ShipModal'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty, fromApiDate, toApiDate } from '../utils/format'
+import Timeline from '../components/activity/Timeline'
 
 const URL = '/sales/orders/'
 
@@ -101,6 +102,7 @@ export default function OrderDetail() {
         <OrderLines order={order} />
       )}
       {order.status !== 'new' && <OrderTasks order={order} />}
+      <Timeline type="sales.salesorder" id={order.id} />
     </Space>
   )
 }

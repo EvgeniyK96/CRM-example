@@ -703,3 +703,19 @@ export interface Dashboard {
   production?: ProductionReport
   warehouse?: Pick<StockReport, 'raw_value' | 'product_value' | 'expired_value' | 'below_min' | 'expiring'>
 }
+
+/** Запись живой ленты / таймлайна документа */
+export interface Activity {
+  id: number
+  kind: 'created' | 'status' | 'comment' | 'post'
+  kind_display: string
+  text: string
+  author: number | null
+  author_name: string | null
+  author_role: string | null
+  old_status: string
+  new_status: string
+  created_at: string
+  target: { type: string; id: number; title: string; path: string | null } | null
+  can_delete: boolean
+}

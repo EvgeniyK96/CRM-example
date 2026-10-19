@@ -15,6 +15,30 @@ body { margin: 0; }
 .shell-title { color: #fff; font-size: 26px; font-weight: 300; margin: 6px 0 14px; letter-spacing: 0.2px; }
 .shell-workarea { border-radius: 14px; padding: 20px; min-height: calc(100vh - 150px); box-shadow: 0 6px 24px rgba(0, 20, 40, 0.18); }
 
+/* Живая лента и таймлайн документа */
+.feed { max-width: 860px; }
+.feed-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 16px 0 12px; }
+.activity-composer { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; }
+.activity-composer .ant-input { flex: 1; }
+.activity-list { display: flex; flex-direction: column; }
+.feed-list { gap: 8px; }
+.activity-item { display: flex; gap: 12px; padding: 10px 4px; border-top: 1px solid #f0f0f0; }
+.activity-list > .activity-item:first-child { border-top: 0; }
+.feed-list .activity-item { background: #fff; border: 0; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0, 20, 40, 0.08); }
+.activity-body { flex: 1; min-width: 0; }
+.activity-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.activity-author { font-weight: 600; }
+.activity-muted { color: rgba(0, 0, 0, 0.55); font-size: 12px; }
+.activity-delete { margin-left: auto; color: rgba(0, 0, 0, 0.45); }
+.activity-event { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; color: rgba(0, 0, 0, 0.75); }
+.activity-event .ant-tag { margin-inline-end: 0; }
+.activity-about { margin-top: 2px; }
+.activity-text {
+  margin-top: 6px; padding: 8px 12px; background: #f4f7f9; border-radius: 0 10px 10px 10px;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.activity-post .activity-text { background: #e6f1f8; }
+
 /* Строка «Фильтр + поиск»: условия плашками внутри поля, панель с пресетами и полями */
 .filter-bar {
   flex: 1 1 420px; max-width: 720px; min-height: 36px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px;

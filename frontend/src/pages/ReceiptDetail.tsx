@@ -10,6 +10,7 @@ import LinesFormList from '../components/LinesFormList'
 import { useItemLineColumns } from '../components/itemLineColumns'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty, fromApiDate, toApiDate } from '../utils/format'
+import Timeline from '../components/activity/Timeline'
 
 const URL = '/purchasing/receipts/'
 
@@ -56,6 +57,7 @@ export default function ReceiptDetail() {
       </Card>
 
       {editable ? <ReceiptEditor receipt={receipt} /> : <ReceiptLines lines={receipt.lines} />}
+      <Timeline type="purchasing.receipt" id={receipt.id} />
     </Space>
   )
 }

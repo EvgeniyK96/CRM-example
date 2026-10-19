@@ -25,6 +25,7 @@ const page = (load: () => Promise<{ default: ComponentType }>) => lazy(load)
  * (при открытии по прямой ссылке — поверх этого списка).
  */
 const ROUTES: { path: string; list?: string; section?: string; Page: ComponentType }[] = [
+  { path: 'feed', section: '/feed', Page: page(() => import('./pages/Feed')) },
   { path: 'orders', section: '/orders', Page: page(() => import('./pages/Orders')) },
   { path: 'orders/:id', list: '/orders', section: '/orders', Page: page(() => import('./pages/OrderDetail')) },
   { path: 'clients', section: '/clients', Page: page(() => import('./pages/Clients')) },

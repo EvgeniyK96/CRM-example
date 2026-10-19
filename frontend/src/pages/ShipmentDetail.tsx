@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useDetail } from '../api/hooks'
 import type { Shipment, ShipmentItem } from '../api/types'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty } from '../utils/format'
+import Timeline from '../components/activity/Timeline'
 
 export default function ShipmentDetail() {
   const { id } = useParams()
@@ -49,6 +50,7 @@ export default function ShipmentDetail() {
           { title: 'Себестоимость', align: 'right', render: (_, i) => fmtMoney(Number(i.quantity) * Number(i.unit_cost)) },
         ]} />
       </Card>
+      <Timeline type="sales.shipment" id={s.id} />
     </Space>
   )
 }

@@ -101,3 +101,12 @@ export const PAYROLL_STATUS: Record<string, StatusInfo> = {
   posted: { color: 'gold', label: 'Проведена' },
   paid: { color: 'green', label: 'Выплачена' },
 }
+
+/** Статусы по типу документа ленты (ключ — app_label.model, как в API /activity/) */
+export const ACTIVITY_TARGET_STATUS: Record<string, Record<string, StatusInfo>> = {
+  'sales.salesorder': SALES_ORDER_STATUS,
+  'production.productiontask': TASK_STATUS,
+  'purchasing.purchaseorder': PO_STATUS,
+  'purchasing.receipt': RECEIPT_STATUS,
+  'recipes.recipe': RECIPE_STATUS,
+}

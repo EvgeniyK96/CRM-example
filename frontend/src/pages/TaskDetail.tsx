@@ -13,6 +13,7 @@ import { useAuth } from '../auth/AuthContext'
 import FinishModal from '../components/FinishModal'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty, fromApiDate, toApiDate } from '../utils/format'
+import Timeline from '../components/activity/Timeline'
 
 const URL = '/production/tasks/'
 
@@ -77,6 +78,7 @@ export default function TaskDetail() {
       {task.allocations.length > 0 && <Allocations task={task} />}
 
       <FinishModal task={task} open={finishing} onClose={() => setFinishing(false)} />
+      <Timeline type="production.productiontask" id={task.id} />
     </Space>
   )
 }

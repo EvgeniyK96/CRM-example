@@ -1,6 +1,6 @@
 import {
   AppstoreOutlined, BarChartOutlined, BookOutlined, CalendarOutlined, CarOutlined, DollarOutlined, ExperimentOutlined,
-  FileDoneOutlined, FileTextOutlined, FundOutlined, HomeOutlined, IdcardOutlined, ImportOutlined, InboxOutlined,
+  FileDoneOutlined, FileTextOutlined, FundOutlined, HomeOutlined, MessageOutlined, IdcardOutlined, ImportOutlined, InboxOutlined,
   OrderedListOutlined, PercentageOutlined, ScheduleOutlined, SettingOutlined, ShopOutlined, ShoppingCartOutlined,
   SolutionOutlined, SwapOutlined, TableOutlined, TeamOutlined, UserOutlined, WalletOutlined,
 } from '@ant-design/icons'
@@ -18,6 +18,7 @@ export interface NavItem {
 // Администратор видит всё; пустой список ролей — только администратор
 export const NAV: NavItem[] = [
   { key: '/', label: 'Главная', roles: 'all', icon: HomeOutlined },
+  { key: '/feed', label: 'Живая лента', roles: 'all', icon: MessageOutlined },
   { key: '/analytics', label: 'Аналитика', roles: ['sales', 'accountant', 'shop_head', 'technologist', 'storekeeper'], icon: BarChartOutlined },
   { key: '/orders', label: 'Заказы клиентов', roles: ['sales', 'accountant', 'storekeeper', 'shop_head'], group: 'Продажи', icon: ShoppingCartOutlined },
   { key: '/clients', label: 'Клиенты', roles: ['sales', 'accountant'], group: 'Продажи', icon: TeamOutlined },

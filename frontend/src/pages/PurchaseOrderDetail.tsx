@@ -10,6 +10,7 @@ import LinesFormList from '../components/LinesFormList'
 import { useItemLineColumns } from '../components/itemLineColumns'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty, fromApiDate, toApiDate } from '../utils/format'
+import Timeline from '../components/activity/Timeline'
 
 const URL = '/purchasing/orders/'
 const RECEIPTS = '/purchasing/receipts/'
@@ -79,6 +80,7 @@ export default function PurchaseOrderDetail() {
             ]} />
         </Card>
       )}
+      <Timeline type="purchasing.purchaseorder" id={order.id} />
     </Space>
   )
 }

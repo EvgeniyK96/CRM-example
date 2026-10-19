@@ -11,6 +11,7 @@ import type { Item, Recipe, RecipeCalculation, RecipeLine } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { RECIPE_STATUS } from '../api/statuses'
 import LinesFormList, { type LineColumn } from '../components/LinesFormList'
+import Timeline from '../components/activity/Timeline'
 
 const fmt = (d: string | null) => (d ? dayjs(d).format('DD.MM.YYYY HH:mm') : '—')
 
@@ -114,6 +115,7 @@ export default function RecipeDetail() {
           ]}
         />
       </Card>
+      <Timeline type="recipes.recipe" id={recipe.id} />
     </Space>
   )
 }
