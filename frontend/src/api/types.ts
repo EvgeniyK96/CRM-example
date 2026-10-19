@@ -719,3 +719,16 @@ export interface Activity {
   target: { type: string; id: number; title: string; path: string | null } | null
   can_delete: boolean
 }
+
+/** Уведомление (колокольчик) */
+export interface AppNotification {
+  id: number
+  reason: 'mention' | 'participant' | 'role'
+  reason_display: string
+  text: string
+  is_read: boolean
+  created_at: string
+  activity: Activity
+}
+
+export interface Person { id: number; username: string; name: string; role_display: string }

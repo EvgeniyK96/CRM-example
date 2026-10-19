@@ -10,6 +10,7 @@ from django.db.models.signals import post_init, post_save
 from core.current_user import get_current_user
 
 from .models import Activity
+from .notify import notify
 from .registry import TRACKED, model_of
 
 _SEEN = "_activity_status"
@@ -48,7 +49,13 @@ def _record(sender, instance, created, raw=False, **kwargs):
     setattr(instance, _SEEN, getattr(instance, "status", None))
 
 
+def _notify(sender, instance, created, raw=False, **kwargs):
+    if created and not raw:
+        notify(instance)
+
+
 def connect():
+    post_save.connect(_notify, sender=Activity, dispatch_uid="activity-notify")
     for tracked in TRACKED:
         model = model_of(tracked)
         post_init.connect(_remember_status, sender=model, dispatch_uid=f"activity-init-{tracked.model}")

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Activity
+from .models import Activity, Notification
 from .registry import describe, key_of
 
 
@@ -41,6 +41,28 @@ class ActivitySerializer(serializers.ModelSerializer):
     def get_can_delete(self, a):
         user = self.context["request"].user
         return a.kind in (Activity.Kind.COMMENT, Activity.Kind.POST) and (a.author_id == user.pk or user.role == "admin")
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    reason_display = serializers.CharField(source="get_reason_display", read_only=True)
+    activity = ActivitySerializer(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = ("id", "reason", "reason_display", "text", "is_read", "created_at", "activity")
+        read_only_fields = fields
+
+
+class PersonSerializer(serializers.Serializer):
+    """Для подсказки @упоминаний: логин, имя, роль."""
+
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    name = serializers.SerializerMethodField()
+    role_display = serializers.CharField(source="get_role_display")
+
+    def get_name(self, user):
+        return display_name(user)
 
 
 class ActivityCreateSerializer(serializers.Serializer):

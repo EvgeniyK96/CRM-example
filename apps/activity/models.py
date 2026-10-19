@@ -36,3 +36,31 @@ class Activity(models.Model):
 
     def __str__(self):
         return f"{self.get_kind_display()}: {self.text[:50]}"
+
+
+class Notification(models.Model):
+    """Уведомление пользователю о записи ленты (правила — notify.py)."""
+
+    class Reason(models.TextChoices):
+        MENTION = "mention", "Упоминание"
+        PARTICIPANT = "participant", "Ваш документ"
+        ROLE = "role", "По вашей роли"
+
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name="Получатель", on_delete=models.CASCADE, related_name="notifications"
+    )
+    activity = models.ForeignKey(Activity, verbose_name="Запись ленты", on_delete=models.CASCADE, related_name="notifications")
+    reason = models.CharField("Причина", max_length=12, choices=Reason.choices)
+    text = models.CharField("Пояснение", max_length=255, blank=True)
+    is_read = models.BooleanField("Прочитано", default=False)
+    created_at = models.DateTimeField("Когда", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Уведомление"
+        verbose_name_plural = "Уведомления"
+        ordering = ["-created_at", "-pk"]
+        constraints = [models.UniqueConstraint(fields=["recipient", "activity"], name="notification_once_per_activity")]
+        indexes = [models.Index(fields=["recipient", "is_read", "-created_at"])]
+
+    def __str__(self):
+        return f"{self.recipient} — {self.text or self.get_reason_display()}"

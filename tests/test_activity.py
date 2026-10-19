@@ -127,3 +127,67 @@ def test_feed_query_count_does_not_grow(sales, client_wholesale, cake, django_as
         new_order(api, client_wholesale, cake)
     with django_assert_max_num_queries(12):
         assert len(api.get(FEED).data["results"]) == 5
+
+
+# --- Уведомления ------------------------------------------------------------
+
+NOTIFICATIONS = "/api/activity/notifications/"
+
+
+def unread(api):
+    return api.get(f"{NOTIFICATIONS}count/").data["unread"]
+
+
+def test_comment_notifies_document_author_and_mentions(sales, client_wholesale, cake):
+    api, author = sales
+    order = new_order(api, client_wholesale, cake)
+    store, store_user = login(Role.STOREKEEPER)
+    tech, _ = login(Role.TECHNOLOGIST)
+
+    store.post(FEED, {"target": TARGET, "target_id": order["id"], "text": "Уточните адрес, @jwt_technologist"})
+    assert unread(api) == 1 and unread(tech) == 1 and unread(store) == 0  # автор себя не уведомляет
+
+    note = api.get(NOTIFICATIONS).data["results"][0]
+    assert note["reason"] == "participant" and note["activity"]["author"] == store_user.pk
+    assert tech.get(NOTIFICATIONS).data["results"][0]["reason"] == "mention"
+
+    # ответ автора заказа уведомляет комментатора — он теперь участник
+    api.post(FEED, {"target": TARGET, "target_id": order["id"], "text": "Склад 1, ворота 3"})
+    assert unread(store) == 1
+
+    assert api.post(f"{NOTIFICATIONS}{note['id']}/read/").data["read"] == 1
+    assert unread(api) == 0
+    assert tech.post(f"{NOTIFICATIONS}read_all/").data["read"] == 1
+    # чужое уведомление не отметить
+    other_note = store.get(NOTIFICATIONS).data["results"][0]["id"]
+    assert api.post(f"{NOTIFICATIONS}{other_note}/read/").data["read"] == 0
+
+
+def test_status_change_notifies_roles(sales, client_wholesale, cake):
+    api, _ = sales
+    put_stock(cake, 20)
+    store, _ = login(Role.STOREKEEPER)
+    login(Role.SHOP_HEAD)
+    order = new_order(api, client_wholesale, cake)
+    api.post(f"/api/sales/orders/{order['id']}/confirm/")  # всё есть на складе → «Готов к отгрузке»
+
+    notes = store.get(NOTIFICATIONS, {"unread": 1}).data["results"]
+    assert [(n["reason"], n["text"]) for n in notes] == [("role", "Заказ готов к отгрузке")]
+    assert notes[0]["activity"]["target"]["path"] == f"/orders/{order['id']}"
+    shop, _ = login(Role.SHOP_HEAD)
+    assert unread(shop) == 0  # производству этот заказ не нужен
+
+
+def test_posts_notify_only_mentions(sales):
+    api, _ = sales
+    store, _ = login(Role.STOREKEEPER)
+    api.post(FEED, {"text": "Всем привет"})
+    assert unread(store) == 0
+    api.post(FEED, {"text": "@jwt_storekeeper, зайдите в отдел продаж; @nobody и почта a@jwt_storekeeper не в счёт"})
+    assert unread(store) == 1
+
+
+def test_people_for_mentions(sales):
+    api, user = sales
+    people = api.get(f"{FEED}people/").data
+    assert {"id": user.pk, "username": user.username, "name": user.first_name, "role_display": "Менеджер по продажам"} in people
