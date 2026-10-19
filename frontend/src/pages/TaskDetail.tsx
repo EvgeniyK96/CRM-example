@@ -10,6 +10,7 @@ import { useApiAction, useDetail } from '../api/hooks'
 import { SALES_ORDER_STATUS, TASK_STATUS } from '../api/statuses'
 import type { ProductionTask, PurchaseOrder, Requirement, TaskAllocation, TaskConsumption } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import FinishModal from '../components/FinishModal'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtDateTime, fmtMoney, fmtQty, fromApiDate, toApiDate } from '../utils/format'
 
@@ -184,31 +185,5 @@ function Allocations({ task }: { task: ProductionTask }) {
         { title: 'Статус заказа', dataIndex: 'order_status', render: (s: string) => <StatusTag map={SALES_ORDER_STATUS} value={s} /> },
       ]} />
     </Card>
-  )
-}
-
-function FinishModal({ task, open, onClose }: { task: ProductionTask; open: boolean; onClose: () => void }) {
-  const [form] = Form.useForm()
-  const finish = useApiAction((v: object) => api.post(`${URL}${task.id}/finish/`, v), {
-    success: 'Задание завершено, партия продукции на складе', invalidate: 'all', onSuccess: onClose,
-  })
-  return (
-    <Modal title={`Завершение ${task.number}`} open={open} onCancel={onClose} onOk={() => form.submit()}
-      okText="Завершить" okButtonProps={{ loading: finish.isPending }} destroyOnHidden>
-      <Typography.Paragraph type="secondary">
-        Годная продукция поступит на склад и распределится по заказам — сначала с ближайшей отгрузкой.
-        Если выпущено меньше плана, недостающее снова попадёт в потребность.
-      </Typography.Paragraph>
-      <Form form={form} layout="vertical" preserve={false} initialValues={{ actual_qty: task.planned_qty, defect_qty: '0' }}
-        onFinish={(v) => finish.mutate(v)}>
-        <Form.Item name="actual_qty" label="Выпущено годной продукции" rules={[{ required: true }]}>
-          <InputNumber min="0" stringMode suffix={task.unit_code} style={{ width: '100%' }} />
-        </Form.Item>
-        <Form.Item name="defect_qty" label="Брак">
-          <InputNumber min="0" stringMode suffix={task.unit_code} style={{ width: '100%' }} />
-        </Form.Item>
-        <Form.Item name="comment" label="Комментарий"><Input.TextArea rows={2} /></Form.Item>
-      </Form>
-    </Modal>
   )
 }

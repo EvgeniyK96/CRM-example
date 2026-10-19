@@ -8,6 +8,7 @@ import { toOptions, useApiAction, useList } from '../api/hooks'
 import { TASK_STATUS } from '../api/statuses'
 import type { DemandGroup, Department, Item, ProductionTask } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import TasksBoard from '../components/boards/TasksBoard'
 import DocumentList from '../components/DocumentList'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtQty, toApiDate } from '../utils/format'
@@ -74,6 +75,7 @@ export default function Tasks() {
           <Select allowClear placeholder="Цех" style={{ width: 240 }} value={department} onChange={setDepartment}
             options={toOptions(departments.data, (d) => d.name)} />
         }
+        board={(rows) => <TasksBoard rows={rows} />}
         canCreate={can('shop_head')}
         createTitle="Задание вне заказов (например, на запас)"
         createInitial={{ planned_date: dayjs() }}

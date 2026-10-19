@@ -5,6 +5,7 @@ import { toOptions, useList } from '../api/hooks'
 import { CLIENT_KIND, SALES_ORDER_STATUS } from '../api/statuses'
 import type { Client, SalesOrder } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import OrdersBoard from '../components/boards/OrdersBoard'
 import DocumentList from '../components/DocumentList'
 import StatusTag from '../components/StatusTag'
 import { fmtDate, fmtMoney, toApiDate } from '../utils/format'
@@ -30,6 +31,7 @@ export default function Orders() {
           {can('sales') && <span style={{ alignSelf: 'center' }}><Switch checked={mine} onChange={setMine} /> Мои заказы</span>}
         </>
       }
+      board={(rows) => <OrdersBoard rows={rows} />}
       canCreate={can('sales')}
       createTitle="Новый заказ"
       createInitial={{ delivery_date: dayjs().add(1, 'day') }}
