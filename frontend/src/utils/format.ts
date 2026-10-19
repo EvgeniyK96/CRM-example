@@ -22,3 +22,11 @@ export const fromApiDate = (value: string | null | undefined) => (value ? dayjs(
 /** «5 минут назад»; старше недели — дата и время */
 export const fmtAgo = (value: string) =>
   dayjs().diff(value, 'day') >= 7 ? fmtDateTime(value) : dayjs(value).fromNow()
+
+/** Секунды → «7:05» (часы:минуты) */
+export const fmtDuration = (seconds: number) => {
+  const m = Math.max(0, Math.floor(seconds / 60))
+  return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`
+}
+
+export const fmtTime = (value: string | null | undefined) => (value ? dayjs(value).format('HH:mm') : '—')

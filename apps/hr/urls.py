@@ -10,6 +10,7 @@ router.register("employees", views.EmployeeViewSet, basename="employee")
 router.register("orders", views.HROrderViewSet, basename="hr-order")
 router.register("absences", views.AbsenceViewSet, basename="absence")
 router.register("holidays", views.HolidayViewSet, basename="holiday")
+router.register("workdays", views.WorkDayViewSet, basename="workday")
 
 urlpatterns = [
     path("timesheet/", views.TimesheetView.as_view(), name="timesheet"),

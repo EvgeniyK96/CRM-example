@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Absence, Department, Employee, Holiday, HROrder, Position
+from .models import Absence, Department, Employee, Holiday, HROrder, Position, WorkDay, WorkInterval
 
 admin.site.register(Department)
 admin.site.register(Position)
@@ -26,3 +26,15 @@ class AbsenceAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Holiday)
+
+
+class WorkIntervalInline(admin.TabularInline):
+    model = WorkInterval
+    extra = 0
+
+
+@admin.register(WorkDay)
+class WorkDayAdmin(admin.ModelAdmin):
+    list_display = ("date", "user", "finished_at", "auto_closed")
+    list_filter = ("auto_closed", "date")
+    inlines = [WorkIntervalInline]

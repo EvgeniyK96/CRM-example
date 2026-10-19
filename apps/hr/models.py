@@ -161,3 +161,38 @@ class Holiday(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.name}"
+
+
+class WorkDay(models.Model):
+    """
+    Рабочий день пользователя (кнопка «Начать день» в шапке). Время — сумма интервалов работы;
+    пауза — промежуток между интервалами. Незакрытый день закрывается сам при начале следующего.
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="Пользователь", on_delete=models.CASCADE,
+                             related_name="workdays")
+    date = models.DateField("Дата")
+    finished_at = models.DateTimeField("Завершён", null=True, blank=True)
+    auto_closed = models.BooleanField("Закрыт автоматически", default=False,
+                                      help_text="Сотрудник забыл завершить день — закрыт при начале следующего")
+    report = models.TextField("Отчёт за день", blank=True)
+
+    class Meta:
+        verbose_name = "Рабочий день"
+        verbose_name_plural = "Учёт рабочего времени"
+        ordering = ["-date", "user"]
+        constraints = [models.UniqueConstraint(fields=["user", "date"], name="workday_once_per_date")]
+
+    def __str__(self):
+        return f"{self.user} {self.date}"
+
+
+class WorkInterval(models.Model):
+    day = models.ForeignKey(WorkDay, verbose_name="День", on_delete=models.CASCADE, related_name="intervals")
+    started_at = models.DateTimeField("Начало")
+    ended_at = models.DateTimeField("Конец", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Интервал работы"
+        verbose_name_plural = "Интервалы работы"
+        ordering = ["started_at"]

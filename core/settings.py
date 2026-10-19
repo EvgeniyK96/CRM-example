@@ -176,3 +176,7 @@ JAZZMIN_SETTINGS = {
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+# Учёт рабочего дня: начало после этого времени — опоздание; норма — для подсветки недоработки
+WORKDAY_START = env.str("WORKDAY_START", default="09:00")
+WORKDAY_HOURS = Decimal(env.str("WORKDAY_HOURS", default="8"))

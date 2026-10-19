@@ -732,3 +732,25 @@ export interface AppNotification {
 }
 
 export interface Person { id: number; username: string; name: string; role_display: string }
+
+/** Рабочий день (кнопка в шапке, отчёт «Учёт времени») */
+export interface WorkDaySummary {
+  id: number | null
+  date: string
+  status: 'none' | 'working' | 'paused' | 'finished'
+  started_at: string | null
+  finished_at: string | null
+  worked_seconds: number
+  break_seconds: number
+  norm_seconds: number
+  late: boolean
+  auto_closed: boolean
+  report: string
+  intervals: { started_at: string; ended_at: string | null }[]
+}
+
+export interface WorkDayRow extends WorkDaySummary {
+  user: number
+  user_name: string
+  department_name: string | null
+}

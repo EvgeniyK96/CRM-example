@@ -55,6 +55,7 @@ const ROUTES: { path: string; list?: string; section?: string; Page: ComponentTy
   { path: 'employees', section: '/employees', Page: page(() => import('./pages/Employees')) },
   { path: 'hr-orders', section: '/hr-orders', Page: page(() => import('./pages/HROrders')) },
   { path: 'absences', section: '/absences', Page: page(() => import('./pages/Absences')) },
+  { path: 'worktime', section: '/worktime', Page: page(() => import('./pages/WorkTime')) },
   { path: 'timesheet', section: '/timesheet', Page: page(() => import('./pages/Timesheet')) },
   { path: 'analytics', section: '/analytics', Page: page(() => import('./pages/Analytics')) },
   { path: 'references', section: '/references', Page: page(() => import('./pages/References')) },

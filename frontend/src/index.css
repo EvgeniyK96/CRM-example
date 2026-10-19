@@ -15,6 +15,21 @@ body { margin: 0; }
 .shell-title { color: #fff; font-size: 26px; font-weight: 300; margin: 6px 0 14px; letter-spacing: 0.2px; }
 .shell-workarea { border-radius: 14px; padding: 20px; min-height: calc(100vh - 150px); box-shadow: 0 6px 24px rgba(0, 20, 40, 0.18); }
 
+/* Учёт рабочего дня в шапке */
+.shell-workday {
+  display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 17px; cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.12); color: #fff; font: inherit; white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.shell-workday:hover { background: rgba(255, 255, 255, 0.22); }
+.shell-workday:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.shell-workday-none { background: #187a42; border-color: #187a42; font-weight: 600; }  /* белый текст 5.4:1 */
+.shell-workday-none:hover { background: #13653a; }
+.shell-workday-working .anticon { color: #7ee2a8; }
+.shell-workday-paused .anticon { color: #ffd666; }
+.workday-panel { width: min(320px, calc(100vw - 32px)); }
+@media (max-width: 576px) { .shell-workday-text { display: none; } .shell-workday { padding: 0 10px; } }
+
 /* Колокольчик уведомлений */
 .shell-bell { border: 0; background: transparent; cursor: pointer; padding: 8px; border-radius: 50%; display: grid; place-items: center; }
 .shell-bell:hover { background: rgba(255, 255, 255, 0.12); }

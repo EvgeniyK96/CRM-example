@@ -1,6 +1,6 @@
 import {
   AppstoreOutlined, BarChartOutlined, BookOutlined, CalendarOutlined, CarOutlined, DollarOutlined, ExperimentOutlined,
-  FileDoneOutlined, FileTextOutlined, FundOutlined, HomeOutlined, MessageOutlined, IdcardOutlined, ImportOutlined, InboxOutlined,
+  FieldTimeOutlined, FileDoneOutlined, FileTextOutlined, FundOutlined, HomeOutlined, MessageOutlined, IdcardOutlined, ImportOutlined, InboxOutlined,
   OrderedListOutlined, PercentageOutlined, ScheduleOutlined, SettingOutlined, ShopOutlined, ShoppingCartOutlined,
   SolutionOutlined, SwapOutlined, TableOutlined, TeamOutlined, UserOutlined, WalletOutlined,
 } from '@ant-design/icons'
@@ -42,6 +42,7 @@ export const NAV: NavItem[] = [
   { key: '/hr-orders', label: 'Кадровые приказы', roles: ['hr', 'accountant'], group: 'Кадры', icon: SolutionOutlined },
   { key: '/absences', label: 'Отсутствия', roles: ['hr', 'accountant', 'shop_head'], group: 'Кадры', icon: CalendarOutlined },
   { key: '/timesheet', label: 'Табель', roles: ['hr', 'accountant', 'shop_head'], group: 'Кадры', icon: TableOutlined },
+  { key: '/worktime', label: 'Учёт времени', roles: ['hr', 'accountant'], group: 'Кадры', icon: FieldTimeOutlined },
   { key: '/references', label: 'Справочники', roles: ['technologist', 'hr'], group: 'Настройки', icon: SettingOutlined },
   { key: '/users', label: 'Пользователи', roles: [], group: 'Настройки', icon: UserOutlined },
 ]

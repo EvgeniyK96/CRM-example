@@ -7,6 +7,7 @@ import { SHELL, WALLPAPER } from '../theme'
 import { NAV, navSection } from './nav'
 import GlobalSearch from './shell/GlobalSearch'
 import NotificationBell from './shell/NotificationBell'
+import WorkDayControl from './shell/WorkDayControl'
 import UserMenu from './shell/UserMenu'
 
 const COLLAPSED_KEY = 'shell.siderCollapsed'
@@ -83,6 +84,7 @@ export default function AppLayout() {
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} style={{ color: '#fff' }} />
           </Tooltip>
           <div style={{ flex: 1, minWidth: 0 }}><GlobalSearch /></div>
+          <WorkDayControl />
           <NotificationBell />
           <UserMenu />
         </Layout.Header>

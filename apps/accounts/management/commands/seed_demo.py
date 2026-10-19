@@ -51,5 +51,6 @@ class Command(BaseCommand):
                 )
                 hr.hire(employee)
         call_command("seed_payroll", stdout=self.stdout)  # тянет за собой все модули по цепочке до зарплаты
+        call_command("seed_worktime", stdout=self.stdout)
         names = ", ".join(u for u, *_ in USERS)
         self.stdout.write(self.style.SUCCESS(f"Готово. Пользователи: {names}; пароль новых — {password}"))
